@@ -1,0 +1,9 @@
+fun main(){ 
+    val x = 2
+    val y = 3
+    val a = "andre"
+    val z = x + y 
+    if (z == x){
+        x++ 
+    }
+}
