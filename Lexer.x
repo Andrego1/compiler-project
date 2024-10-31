@@ -40,8 +40,8 @@ tokens :-
     -- Números reais
     "-"?$digit+"."$digit+           { \s -> REAL (read s) } -- "-"? para suportar numeros negativos
 
-    -- Strings -- acho nao funciona bem
-    \"(~\")*\"                  {\s -> STRING s}
+    -- Strings -- 
+    \"([^\"]|\\.)*\"          { \s -> STRING $ replaceEscapedChars (init (tail s)) }
 
     -- Char pode nao ser necessario
     --"'"(~\')"'"                     {\c -> CHAR c}
@@ -89,6 +89,9 @@ tokens :-
     "=="                        {\_ -> EQUAL}
     "!="                        {\_ -> NEQUAL}
 
+    -- Caracter de anotação de tipo
+    ":"                         { \_ -> COLON }
+
 {
 data Token = ID String       -- e.g. xy123
             | NUM Int        -- e.g. 123
@@ -130,5 +133,16 @@ data Token = ID String       -- e.g. xy123
             | NOT
             | READLN
             | PRINT
+            | COLON           -- :
             deriving (Show, Eq)    
+
+-- lidar com \n e etc...
+replaceEscapedChars :: String -> String
+replaceEscapedChars [] = []
+replaceEscapedChars ('\\':'n':xs)  = '\n' : replaceEscapedChars xs    -- nova linha
+replaceEscapedChars ('\\':'t':xs)  = '\t' : replaceEscapedChars xs    -- tabulação
+replaceEscapedChars ('\\':'r':xs)  = '\r' : replaceEscapedChars xs    -- retorno de carro
+replaceEscapedChars ('\\':'"':xs)  = '\"' : replaceEscapedChars xs    -- aspa dupla
+replaceEscapedChars ('\\':'\\':xs) = '\\' : replaceEscapedChars xs    -- barra invertida
+replaceEscapedChars (x:xs)         = x    : replaceEscapedChars xs    -- outros caracteres
 }

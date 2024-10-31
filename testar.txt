@@ -1,7 +1,7 @@
 fun main(){ 
-    val x = 2
+    val x: Int = 2
     val y = 3
-    val a = "andre"
+    val a = "andre  adrego\n"
     val z = x + y 
     if (z == x){
         x++ 
