@@ -30,6 +30,7 @@ tokens :-
     false                       {\_ -> FALSE} 
     print                       {\_ -> PRINT}
     readln                      {\_ -> READLN}
+    boolean                     {\_ -> BOOLEAN}
 
     -- Identificadores 
     $alpha($alpha|$digit)*      { \s -> ID s }
@@ -134,6 +135,7 @@ data Token = ID String       -- e.g. xy123
             | READLN
             | PRINT
             | COLON           -- :
+            | BOOLEAN
             deriving (Show, Eq)    
 
 -- lidar com \n e etc...
