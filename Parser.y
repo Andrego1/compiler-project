@@ -19,9 +19,11 @@ string  {STRING $$}
 '}'     {RBRACE}
 ','     {COMMA}
 if      {IF}
+else    {ELSE}
 while   {WHILE}
 int     {INT}
 float   {FLOAT}
+boolean {BOOLEAN}
 fun     {FUN}
 main    {MAIN}
 val     {VAL}
@@ -48,74 +50,117 @@ false   {FALSE}
 readln  {READLN}
 print   {PRINT}
 ':'     {COLON}
-boolean {BOOLEAN}
 
--- ainda falta defenir precedencias
+%left "||"
+%left "&&"
+%nonassoc EQUAL NEQUAL
+%nonassoc G GEQ L LEQ
+%left '+' '-'
+%left '*' '/' '%'
+%right NOT
 
 %% 
 
--- epsilon defenido (penso) como {- empty -}           { [] }
--- defenir as gramaticas
-
-Fun : fun main '('')' '{' Comands '}'   {}
-    | {- empty -}                       { [] }
+-- Define o ponto de entrada
+Fun : fun main '(' ')' '{' Commands '}'  { $5 }  -- inicia o parsing pela função main
+         | {- empty -}                       { [] }
 
 Commands : Command Commands
-    |  {- empty -}                      { [] }
+         | {- empty -}                        { [] }
 
-Command : Decl
-        | Assign
-        | Aexp -- nao tenho a certeza
-        | Bexp -- nao tenho a certeza
-        | If
-        | While
-        | Print
-        | Readln
+Command : Decl                                 { $1 }
+        | Assign                               { $1 }
+        | Aexp                                 { $1 }
+        | Bexp                                 { $1 }
+        | If                                   { $1 }
+        | While                                { $1 }
+        | Print                                { $1 }
+        | Readln                               { $1 }
 
-Print : print '(' Aexp ')'
-    | print '(' Bexp ')'
-    | print '(' string ')'
+Print : print '(' Aexp ')'                     { PrintNode $3 }
+      | print '(' Bexp ')'                     { PrintNode $3 }
+      | print '(' string ')'                   { PrintNode $3 }
 
-If : if '(' Bexp ')' '{' Comands '}'                        { ... }
-   | if '(' Bexp ')' '{' Comands '}' else '{' Comands '}'   { ... }
+If : if '(' Bexp ')' '{' Commands '}'          { IfNode $3 $6 }
+   | if '(' Bexp ')' '{' Commands '}' else '{' Commands '}'  { IfElseNode $3 $6 $10 }
 
-While : while '(' Bexp ')' '{' Comands '}' { ... }
+While : while '(' Bexp ')' '{' Commands '}'    { WhileNode $3 $6 }
 
-Type : int                  { ... }
-    | float                 { ... }
-    | boolean               { ... }
-    | string
+Type : int                  { IntType }
+     | float                { FloatType }
+     | boolean              { BoolType }
+     | string               { StringType }
 
-Decl : var id '=' Aexp              { ... }  -- var x = 5
-    | var id '=' Bexp               { ... }  -- var x = true
-    | var id ':' Type '=' Aexp      { ... }  -- var x: Int = 5
-    | var id ':' Type '=' Bexp      { ... }  -- var x: Boolean = true
-    | val id '=' Aexp               { ... }  -- val y = 10
-    | val id '=' Bexp               { ... }  -- val y = false
-    | val id ':' Type '=' Aexp      { ... }  -- val y: Int = 10
-    | val id ':' Type '=' Bexp      { ... }  -- val y: Boolean = false
+Decl : var id '=' Aexp                      { VarDecl $2 $4 }
+     | var id '=' Bexp                      { VarDecl $2 $4 }
+     | var id ':' Type '=' Aexp             { VarDeclTyped $2 $4 $6 }
+     | var id ':' Type '=' Bexp             { VarDeclTyped $2 $4 $6 }
+     | val id '=' Aexp                      { ValDecl $2 $4 }
+     | val id '=' Bexp                      { ValDecl $2 $4 }
+     | val id ':' Type '=' Aexp             { ValDeclTyped $2 $4 $6 }
+     | val id ':' Type '=' Bexp             { ValDeclTyped $2 $4 $6 }
 
-Assign : id '=' Aexp
-    | id '=' Bexp
+Assign : id '=' Aexp                         { AssignNode $1 $3 }
+       | id '=' Bexp                         { AssignNode $1 $3 }
 
-Aexp : num
-    | real
-    | id
-    | Aexp '+' Aexp
-    | Aexp '-' Aexp
-    | Aexp '/' Aexp
-    | Aexp '*' Aexp
-    | Aexp '%' Aexp
+Aexp : num                                  { NumNode $1 }
+     | real                                 { RealNode $1 }
+     | id                                   { IdNode $1 }
+     | Aexp '+' Aexp                        { AddNode $1 $3 }
+     | Aexp '-' Aexp                        { SubNode $1 $3 }
+     | Aexp '*' Aexp                        { MultNode $1 $3 }
+     | Aexp '/' Aexp                        { DivNode $1 $3 }
+     | Aexp '%' Aexp                        { ModNode $1 $3 }
 
-Bexp : true
-    | false
-    | id
-    | Bexp "&&" Bexp
-    | Bexp "||" Bexp
-    | Bexp '>' Bexp
-    | Bexp ">=" Bexp
-    | Bexp '<' Bexp
-    | Bexp "<=" Bexp
-    | Bexp "==" Bexp
-    | Bexp "!=" Bexp
-    | '!' Bexp
+Bexp : true                                 { BoolNode True }
+     | false                                { BoolNode False }
+     | id                                   { IdNode $1 }
+     | Bexp "&&" Bexp                       { AndNode $1 $3 }
+     | Bexp "||" Bexp                       { OrNode $1 $3 }
+     | Bexp '>' Bexp                        { GtNode $1 $3 }
+     | Bexp ">=" Bexp                       { GeNode $1 $3 }
+     | Bexp '<' Bexp                        { LtNode $1 $3 }
+     | Bexp "<=" Bexp                       { LeNode $1 $3 }
+     | Bexp "==" Bexp                       { EqNode $1 $3 }
+     | Bexp "!=" Bexp                       { NeNode $1 $3 }
+     | '!' Bexp                             { NotNode $2 }
+
+%%
+
+{
+-- AST Nodes
+data Exp = NumNode Int
+         | RealNode Float
+         | IdNode String
+         | AddNode Exp Exp
+         | SubNode Exp Exp
+         | MultNode Exp Exp
+         | DivNode Exp Exp
+         | ModNode Exp Exp
+         | BoolNode Bool
+         | AndNode Exp Exp
+         | OrNode Exp Exp
+         | GtNode Exp Exp
+         | GeNode Exp Exp
+         | LtNode Exp Exp
+         | LeNode Exp Exp
+         | EqNode Exp Exp
+         | NeNode Exp Exp
+         | NotNode Exp
+         | IfNode Exp [Exp]
+         | IfElseNode Exp [Exp] [Exp]
+         | WhileNode Exp [Exp]
+         | PrintNode Exp
+         | VarDecl String Exp
+         | VarDeclTyped String Type Exp
+         | ValDecl String Exp
+         | ValDeclTyped String Type Exp
+         | AssignNode String Exp
+         deriving (Show, Eq)
+
+data Type = IntType | FloatType | BoolType | StringType deriving (Show, Eq)
+
+parseError :: [Token] -> a
+parseError _ = error "Erro de parsing"
+}
+
