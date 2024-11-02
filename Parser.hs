@@ -779,15 +779,15 @@ action_113 _ = happyReduce_18
 
 happyReduce_1 = happyReduce 7 4 happyReduction_1
 happyReduction_1 (_ `HappyStk`
+	(HappyAbsSyn5  happy_var_6) `HappyStk`
 	_ `HappyStk`
-	(HappyTerminal happy_var_5) `HappyStk`
 	_ `HappyStk`
 	_ `HappyStk`
 	_ `HappyStk`
 	_ `HappyStk`
 	happyRest)
 	 = HappyAbsSyn4
-		 ([happy_var_5]
+		 (happy_var_6
 	) `HappyStk` happyRest
 
 happyReduce_2 = happySpecReduce_0  4 happyReduction_2

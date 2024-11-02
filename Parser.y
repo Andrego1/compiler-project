@@ -63,7 +63,7 @@ print   {PRINT}
 %% 
 
 -- Define o ponto de entrada
-Fun : fun main '(' ')' '{' Commands '}' { [$5] }  -- corrige um erro
+Fun : fun main '(' ')' '{' Commands '}' { $6 } 
          | {- empty -}                  { [] }
 
 Commands : Command Commands                 { $1 : $2 } --lista de commands
