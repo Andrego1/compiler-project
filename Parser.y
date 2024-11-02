@@ -17,7 +17,7 @@ string  {STRING $$}
 ')'     {RPAREN}
 '{'     {LBRACE}
 '}'     {RBRACE}
-','     {COMMA}
+--','     {COMMA}
 if      {IF}
 else    {ELSE}
 while   {WHILE}
@@ -58,6 +58,7 @@ print   {PRINT}
 %left '+' '-'
 %left '*' '/' '%'
 %right NOT
+%right ICR DCR
 
 %% 
 
@@ -65,8 +66,8 @@ print   {PRINT}
 Fun : fun main '(' ')' '{' Commands '}'  { $5 }  -- inicia o parsing pela função main
          | {- empty -}                       { [] }
 
-Commands : Command Commands
-         | {- empty -}                        { [] }
+Commands : Command Commands                 { $1 : $2 } --lista de commands
+         | {- empty -}                      { [] }
 
 Command : Decl                                 { $1 }
         | Assign                               { $1 }
@@ -77,12 +78,14 @@ Command : Decl                                 { $1 }
         | Print                                { $1 }
         | Readln                               { $1 }
 
+Readln : readln '(' ')'        { ReadlnNode }
+
 Print : print '(' Aexp ')'                     { PrintNode $3 }
       | print '(' Bexp ')'                     { PrintNode $3 }
       | print '(' string ')'                   { PrintNode $3 }
 
-If : if '(' Bexp ')' '{' Commands '}'          { IfNode $3 $6 }
-   | if '(' Bexp ')' '{' Commands '}' else '{' Commands '}'  { IfElseNode $3 $6 $10 }
+If : if '(' Bexp ')' '{' Commands '}'                       { IfNode $3 $6 }
+   | if '(' Bexp ')' '{' Commands '}' else '{' Commands '}' { IfElseNode $3 $6 $10 }
 
 While : while '(' Bexp ')' '{' Commands '}'    { WhileNode $3 $6 }
 
@@ -111,6 +114,8 @@ Aexp : num                                  { NumNode $1 }
      | Aexp '*' Aexp                        { MultNode $1 $3 }
      | Aexp '/' Aexp                        { DivNode $1 $3 }
      | Aexp '%' Aexp                        { ModNode $1 $3 }
+     | Aexp "++"                            { IncrNode $1 }
+     | Aexp "--"                            { DecrNode $1 }
 
 Bexp : true                                 { BoolNode True }
      | false                                { BoolNode False }
@@ -125,8 +130,6 @@ Bexp : true                                 { BoolNode True }
      | Bexp "!=" Bexp                       { NeNode $1 $3 }
      | '!' Bexp                             { NotNode $2 }
 
-%%
-
 {
 -- AST Nodes
 data Exp = NumNode Int
@@ -137,6 +140,8 @@ data Exp = NumNode Int
          | MultNode Exp Exp
          | DivNode Exp Exp
          | ModNode Exp Exp
+         | IncrNode Exp 
+         | DecrNode Exp 
          | BoolNode Bool
          | AndNode Exp Exp
          | OrNode Exp Exp
@@ -151,6 +156,7 @@ data Exp = NumNode Int
          | IfElseNode Exp [Exp] [Exp]
          | WhileNode Exp [Exp]
          | PrintNode Exp
+         | ReadlnNode
          | VarDecl String Exp
          | VarDeclTyped String Type Exp
          | ValDecl String Exp

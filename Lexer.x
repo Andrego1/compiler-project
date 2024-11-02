@@ -60,7 +60,7 @@ tokens :-
     ")"                         { \_ -> RPAREN }
     "{"                         { \_ -> LBRACE }
     "}"                         { \_ -> RBRACE }
-    ","                         { \_ -> COMMA }
+    -- ","                         { \_ -> COMMA }
 
     -- Operadores
     "+"                         { \_ -> PLUS}
@@ -103,7 +103,7 @@ data Token = ID String       -- e.g. xy123
             | RPAREN         -- )
             | LBRACE         -- {
             | RBRACE         -- }
-            | COMMA          -- ,
+            -- | COMMA          -- ,
             | IF             -- if
             | ELSE           -- else
             | WHILE          -- while
