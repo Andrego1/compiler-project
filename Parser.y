@@ -63,8 +63,8 @@ print   {PRINT}
 %% 
 
 -- Define o ponto de entrada
-Fun : fun main '(' ')' '{' Commands '}'  { $5 }  -- inicia o parsing pela função main
-         | {- empty -}                       { [] }
+Fun : fun main '(' ')' '{' Commands '}' { [$5] }  -- corrige um erro
+         | {- empty -}                  { [] }
 
 Commands : Command Commands                 { $1 : $2 } --lista de commands
          | {- empty -}                      { [] }
@@ -82,7 +82,7 @@ Readln : readln '(' ')'        { ReadlnNode }
 
 Print : print '(' Aexp ')'                     { PrintNode $3 }
       | print '(' Bexp ')'                     { PrintNode $3 }
-      | print '(' string ')'                   { PrintNode $3 }
+      | print '(' string ')'                   { PrintNode (StringNode $3) } --corrige um erro
 
 If : if '(' Bexp ')' '{' Commands '}'                       { IfNode $3 $6 }
    | if '(' Bexp ')' '{' Commands '}' else '{' Commands '}' { IfElseNode $3 $6 $10 }
@@ -122,11 +122,11 @@ Bexp : true                                 { BoolNode True }
      | id                                   { IdNode $1 }
      | Bexp "&&" Bexp                       { AndNode $1 $3 }
      | Bexp "||" Bexp                       { OrNode $1 $3 }
-     | Bexp '>' Bexp                        { GtNode $1 $3 }
-     | Bexp ">=" Bexp                       { GeNode $1 $3 }
-     | Bexp '<' Bexp                        { LtNode $1 $3 }
-     | Bexp "<=" Bexp                       { LeNode $1 $3 }
-     | Bexp "==" Bexp                       { EqNode $1 $3 }
+     | Aexp '>' Aexp                        { GtNode $1 $3 }
+     | Aexp ">=" Aexp                       { GeNode $1 $3 }
+     | Aexp '<' Aexp                        { LtNode $1 $3 }
+     | Aexp "<=" Aexp                       { LeNode $1 $3 }
+     | Aexp "==" Aexp                       { EqNode $1 $3 }
      | Bexp "!=" Bexp                       { NeNode $1 $3 }
      | '!' Bexp                             { NotNode $2 }
 
@@ -134,6 +134,7 @@ Bexp : true                                 { BoolNode True }
 -- AST Nodes
 data Exp = NumNode Int
          | RealNode Float
+         | StringNode String
          | IdNode String
          | AddNode Exp Exp
          | SubNode Exp Exp
