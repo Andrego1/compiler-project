@@ -11,8 +11,8 @@ import Lexer
 
 id      {ID $$}
 num     {NUM $$}
-real    {REAL $$}
-string  {STRING $$}
+-- real    {REAL $$}
+str  {STR $$}
 
 '('     {LPAREN}
 ')'     {RPAREN}
@@ -27,6 +27,7 @@ while   {WHILE}
 int     {INT}
 float   {FLOAT}
 boolean {BOOLEAN}
+string    {STRING}
 
 fun     {FUN}
 main    {MAIN}
@@ -94,7 +95,7 @@ Readln : readln '(' ')'        { ReadlnNode }
 
 Print : print '(' Aexp ')'                     { PrintNode $3 }
       | print '(' Bexp ')'                     { PrintNode $3 }
-      | print '(' string ')'                   { PrintNode (StringNode $3) } --corrige um erro
+      | print '(' str ')'                   { PrintNode (StringNode $3) } --corrige um erro
 
 If : if '(' Bexp ')' '{' Commands '}'                       { IfNode $3 $6 }
    | if '(' Bexp ')' '{' Commands '}' else '{' Commands '}' { IfElseNode $3 $6 $10 }
@@ -118,8 +119,8 @@ Decl : var id '=' Aexp                      { VarDecl $2 $4 }
 Assign : id '=' Aexp                         { AssignNode $1 $3 }
        | id '=' Bexp                         { AssignNode $1 $3 }
 
-Aexp : num                                  { NumNode $1 }
-     | real                                 { RealNode $1 }
+Aexp : num                                  { NumNode  $1 }
+     -- | real                                 { RealNode $1 }
      | id                                   { IdNode $1 }
      | Aexp '+' Aexp                        { AddNode $1 $3 }
      | Aexp '-' Aexp                        { SubNode $1 $3 }
@@ -145,7 +146,7 @@ Bexp : true                                 { BoolNode True }
 {
 -- AST Nodes
 data Exp = NumNode Int
-         | RealNode Float
+         -- | RealNode Float
          | StringNode String
          | IdNode String
          | AddNode Exp Exp
