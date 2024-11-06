@@ -24,7 +24,7 @@ tokens :-
     Int                         { \_ -> INT }
     Float                       { \_ -> FLOAT }
     Boolean                     {\_ -> BOOLEAN }
-    -- String                      {\_ -> STRING }
+    String                      {\_ -> STRING }
 
     fun                         { \_ -> FUN }
     main                        { \_ -> MAIN}
@@ -49,7 +49,7 @@ tokens :-
     "-"?$digit+"."$digit+       { \s -> REAL (read s) } -- "-"? para suportar numeros negativos
 
     -- Strings -- 
-    \"([^\"]|\\.)*\"            { \s -> STRING $ replaceEscapedChars (init (tail s)) }
+    \"([^\"]|\\.)*\"            { \s -> STR $ replaceEscapedChars (init (tail s)) }
 
     -- Char pode nao ser necessario
     --"'"(~\')"'"                     {\c -> CHAR c}
@@ -104,7 +104,7 @@ tokens :-
 data Token = ID String       -- e.g. xy123
             | NUM Int        -- e.g. 123
             | REAL Float     -- e.g. 123.45
-            | STRING String  -- e.g "andre"
+            | STR String  -- e.g "andre"
             -- | CHAR Char      -- e.g 'a'
             
             | LPAREN         -- (
@@ -120,6 +120,7 @@ data Token = ID String       -- e.g. xy123
             | INT            -- int
             | FLOAT          -- float
             | BOOLEAN
+            | STRING
 
             | FUN            -- e.g. fun main
             | MAIN           -- para fun main
