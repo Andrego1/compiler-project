@@ -1,8 +1,10 @@
 fun main(){ 
     val x: Int = 2
     val y = 3
-    val a = "andre  adrego\n"
+    val b: Float = 2
+    //val a = "andre  adrego\n"
     val z = x + y 
+    val a: Boolean = true
     if (z == x){
         x++ 
     }

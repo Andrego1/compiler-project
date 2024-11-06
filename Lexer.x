@@ -20,29 +20,36 @@ tokens :-
     if                          { \_ -> IF }
     else                        {\_ -> ELSE}
     while                       { \_ -> WHILE }
+    
     Int                         { \_ -> INT }
     Float                       { \_ -> FLOAT }
+    Boolean                     {\_ -> BOOLEAN }
+    -- String                      {\_ -> STRING }
+
     fun                         { \_ -> FUN }
     main                        { \_ -> MAIN}
+
     var                         { \_ -> VAR }
     val                         { \_ -> VAL}
+
     true                        {\_ -> TRUE}
     false                       {\_ -> FALSE} 
+
     print                       {\_ -> PRINT}
     readln                      {\_ -> READLN}
-    boolean                     {\_ -> BOOLEAN}
+
 
     -- Identificadores 
     $alpha($alpha|$digit)*      { \s -> ID s }
 
     -- Números inteiros
-    "-"?$digit+                     { \s -> NUM (read s) } -- "-"? para suportar numeros negativos
+    "-"?$digit+                 { \s -> NUM (read s) } -- "-"? para suportar numeros negativos
 
     -- Números reais
-    "-"?$digit+"."$digit+           { \s -> REAL (read s) } -- "-"? para suportar numeros negativos
+    "-"?$digit+"."$digit+       { \s -> REAL (read s) } -- "-"? para suportar numeros negativos
 
     -- Strings -- 
-    \"([^\"]|\\.)*\"          { \s -> STRING $ replaceEscapedChars (init (tail s)) }
+    \"([^\"]|\\.)*\"            { \s -> STRING $ replaceEscapedChars (init (tail s)) }
 
     -- Char pode nao ser necessario
     --"'"(~\')"'"                     {\c -> CHAR c}
@@ -60,7 +67,7 @@ tokens :-
     ")"                         { \_ -> RPAREN }
     "{"                         { \_ -> LBRACE }
     "}"                         { \_ -> RBRACE }
-    ","                         { \_ -> COMMA }
+    -- ","                         { \_ -> COMMA }
 
     -- Operadores
     "+"                         { \_ -> PLUS}
@@ -99,43 +106,55 @@ data Token = ID String       -- e.g. xy123
             | REAL Float     -- e.g. 123.45
             | STRING String  -- e.g "andre"
             -- | CHAR Char      -- e.g 'a'
+            
             | LPAREN         -- (
             | RPAREN         -- )
             | LBRACE         -- {
             | RBRACE         -- }
-            | COMMA          -- ,
+            -- | COMMA          -- ,
+
             | IF             -- if
             | ELSE           -- else
             | WHILE          -- while
+
             | INT            -- int
             | FLOAT          -- float
+            | BOOLEAN
+
             | FUN            -- e.g. fun main
             | MAIN           -- para fun main
+
             | VAL            -- var (mutavel)
             | VAR            -- val (imutavel)
+
             | PLUS           -- +
             | MINUS          -- -
             | MULT           -- *
             | DIV            -- /
             | MOD            -- %
+
             | G              -- >
             | GEQ            -- >=
             | L              -- <
             | LEQ            -- <=
-            | DCR            -- --
-            | ICR            -- ++
-            | ATRIB          -- =
             | EQUAL          -- ==
             | NEQUAL         -- !=
-            | TRUE
-            | FALSE
             | AND
             | OR
             | NOT
+
+            | DCR            -- --
+            | ICR            -- ++
+            | ATRIB          -- =
+
+            | TRUE
+            | FALSE
+
+
             | READLN
             | PRINT
+
             | COLON           -- :
-            | BOOLEAN
             deriving (Show, Eq)    
 
 -- lidar com \n e etc...
