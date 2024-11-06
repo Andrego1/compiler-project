@@ -13,42 +13,54 @@ id      {ID $$}
 num     {NUM $$}
 real    {REAL $$}
 string  {STRING $$}
+
 '('     {LPAREN}
 ')'     {RPAREN}
 '{'     {LBRACE}
 '}'     {RBRACE}
 --','     {COMMA}
+
 if      {IF}
 else    {ELSE}
 while   {WHILE}
+
 int     {INT}
 float   {FLOAT}
 boolean {BOOLEAN}
+
 fun     {FUN}
 main    {MAIN}
 val     {VAL}
 var     {VAR}
+
 '+'     {PLUS}
 '-'     {MINUS}
 '*'     {MULT}
 '/'     {DIV}
 '%'     {MOD}
+
 '>'     {G}
 ">="    {GEQ}
 '<'     {L}
 "<="    {LEQ}
 "=="    {EQUAL}
 "!="    {NEQUAL}
-"++"    {ICR}
-"--"    {DCR}
-'='     {ATRIB}
-true    {TRUE}
-false   {FALSE}
 "&&"    {AND}
 "||"    {OR}
 '!'     {NOT}
+
+"++"    {ICR}
+"--"    {DCR}
+
+'='     {ATRIB}
+
+true    {TRUE}
+false   {FALSE}
+
+
 readln  {READLN}
 print   {PRINT}
+
 ':'     {COLON}
 
 %left "||"
@@ -168,6 +180,6 @@ data Exp = NumNode Int
 data Type = IntType | FloatType | BoolType | StringType deriving (Show, Eq)
 
 parseError :: [Token] -> a
-parseError _ = error "Erro de parsing"
+parseError toks = error $ "Erro de parsing" ++ show toks
 }
 
