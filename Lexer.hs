@@ -450,7 +450,7 @@ alexGetByte (_,[],(c:s)) = case utf8Encode' c of
 alex_tab_size :: Int
 alex_tab_size = 8
 alex_base :: Array Int Int
-alex_base = listArray (0 :: Int, 126)
+alex_base = listArray (0 :: Int, 131)
   [ -8
   , -9
   , 119
@@ -562,19 +562,24 @@ alex_base = listArray (0 :: Int, 126)
   , 0
   , -25
   , 2240
-  , 0
-  , -20
-  , 0
-  , 0
-  , 0
   , -42
-  , 0
-  , 0
+  , 2257
   , -41
+  , 0
+  , 0
+  , -39
+  , 0
   , 0
   , -38
   , 0
+  , -34
+  , 0
   , -33
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
   , 0
   , 0
   , 0
@@ -601,16 +606,16 @@ alex_table = listArray (0 :: Int, 7832)
   , 100
   , 100
   , 117
-  , 125
-  , 120
+  , 126
+  , 128
   , 0
-  , 21
-  , 122
+  , 130
+  , 120
   , 35
   , 116
   , 33
-  , 103
-  , 124
+  , 122
+  , 129
   , 113
   , 27
   , 0
@@ -618,7 +623,7 @@ alex_table = listArray (0 :: Int, 7832)
   , 106
   , 111
   , 109
-  , 0
+  , 124
   , 110
   , 104
   , 112
@@ -632,7 +637,7 @@ alex_table = listArray (0 :: Int, 7832)
   , 99
   , 99
   , 99
-  , 126
+  , 131
   , 0
   , 121
   , 123
@@ -2881,12 +2886,12 @@ alex_table = listArray (0 :: Int, 7832)
   , 99
   , 99
   , 102
+  , 21
+  , 0
+  , 125
   , 0
   , 0
-  , 0
-  , 0
-  , 0
-  , 0
+  , 103
   , 0
   , 0
   , 0
@@ -2900,7 +2905,7 @@ alex_table = listArray (0 :: Int, 7832)
   , 74
   , 74
   , 74
-  , 0
+  , 127
   , 0
   , 0
   , 0
@@ -8441,12 +8446,12 @@ alex_check = listArray (0 :: Int, 7832)
   , 61
   , 61
   , -1
-  , 42
+  , 61
   , 61
   , 32
   , 33
   , 34
-  , 47
+  , 61
   , 61
   , 37
   , 38
@@ -8455,7 +8460,7 @@ alex_check = listArray (0 :: Int, 7832)
   , 41
   , 42
   , 43
-  , -1
+  , 61
   , 45
   , 47
   , 47
@@ -10718,12 +10723,12 @@ alex_check = listArray (0 :: Int, 7832)
   , 56
   , 57
   , 34
+  , 42
+  , -1
+  , 61
   , -1
   , -1
-  , -1
-  , -1
-  , -1
-  , -1
+  , 47
   , -1
   , -1
   , -1
@@ -10737,7 +10742,7 @@ alex_check = listArray (0 :: Int, 7832)
   , 55
   , 56
   , 57
-  , -1
+  , 61
   , -1
   , -1
   , -1
@@ -16255,7 +16260,7 @@ alex_check = listArray (0 :: Int, 7832)
   ]
 
 alex_deflt :: Array Int Int
-alex_deflt = listArray (0 :: Int, 126)
+alex_deflt = listArray (0 :: Int, 131)
   [ -1
   , 21
   , -1
@@ -16383,9 +16388,14 @@ alex_deflt = listArray (0 :: Int, 126)
   , -1
   , -1
   , -1
+  , -1
+  , -1
+  , -1
+  , -1
+  , -1
   ]
 
-alex_accept = listArray (0 :: Int, 126)
+alex_accept = listArray (0 :: Int, 131)
   [ AlexAccNone
   , AlexAccNone
   , AlexAccNone
@@ -16422,6 +16432,11 @@ alex_accept = listArray (0 :: Int, 126)
   , AlexAccNone
   , AlexAccNone
   , AlexAccSkip
+  , AlexAcc 93
+  , AlexAcc 92
+  , AlexAcc 91
+  , AlexAcc 90
+  , AlexAcc 89
   , AlexAcc 88
   , AlexAcc 87
   , AlexAcc 86
@@ -16484,13 +16499,13 @@ alex_accept = listArray (0 :: Int, 126)
   , AlexAcc 29
   , AlexAcc 28
   , AlexAcc 27
+  , AlexAccSkip
+  , AlexAccSkip
   , AlexAcc 26
   , AlexAcc 25
   , AlexAcc 24
   , AlexAcc 23
   , AlexAcc 22
-  , AlexAccSkip
-  , AlexAccSkip
   , AlexAcc 21
   , AlexAcc 20
   , AlexAcc 19
@@ -16515,22 +16530,27 @@ alex_accept = listArray (0 :: Int, 126)
   , AlexAcc 0
   ]
 
-alex_actions = array (0 :: Int, 89)
-  [ (88,alex_action_1)
-  , (87,alex_action_2)
-  , (86,alex_action_3)
-  , (85,alex_action_4)
-  , (84,alex_action_5)
-  , (83,alex_action_6)
-  , (82,alex_action_7)
-  , (81,alex_action_8)
-  , (80,alex_action_9)
-  , (79,alex_action_10)
-  , (78,alex_action_11)
-  , (77,alex_action_12)
-  , (76,alex_action_13)
-  , (75,alex_action_14)
-  , (74,alex_action_15)
+alex_actions = array (0 :: Int, 94)
+  [ (93,alex_action_1)
+  , (92,alex_action_2)
+  , (91,alex_action_3)
+  , (90,alex_action_4)
+  , (89,alex_action_5)
+  , (88,alex_action_6)
+  , (87,alex_action_7)
+  , (86,alex_action_8)
+  , (85,alex_action_9)
+  , (84,alex_action_10)
+  , (83,alex_action_11)
+  , (82,alex_action_12)
+  , (81,alex_action_13)
+  , (80,alex_action_14)
+  , (79,alex_action_15)
+  , (78,alex_action_16)
+  , (77,alex_action_16)
+  , (76,alex_action_16)
+  , (75,alex_action_16)
+  , (74,alex_action_16)
   , (73,alex_action_16)
   , (72,alex_action_16)
   , (71,alex_action_16)
@@ -16574,40 +16594,40 @@ alex_actions = array (0 :: Int, 89)
   , (33,alex_action_16)
   , (32,alex_action_16)
   , (31,alex_action_16)
-  , (30,alex_action_16)
-  , (29,alex_action_16)
-  , (28,alex_action_16)
-  , (27,alex_action_16)
-  , (26,alex_action_16)
-  , (25,alex_action_17)
-  , (24,alex_action_18)
-  , (23,alex_action_19)
-  , (22,alex_action_19)
-  , (21,alex_action_22)
-  , (20,alex_action_23)
-  , (19,alex_action_24)
-  , (18,alex_action_25)
-  , (17,alex_action_26)
-  , (16,alex_action_27)
-  , (15,alex_action_28)
-  , (14,alex_action_29)
-  , (13,alex_action_30)
-  , (12,alex_action_31)
-  , (11,alex_action_32)
-  , (10,alex_action_33)
-  , (9,alex_action_34)
-  , (8,alex_action_35)
-  , (7,alex_action_36)
-  , (6,alex_action_37)
-  , (5,alex_action_38)
-  , (4,alex_action_39)
-  , (3,alex_action_40)
-  , (2,alex_action_41)
-  , (1,alex_action_42)
-  , (0,alex_action_43)
+  , (30,alex_action_17)
+  , (29,alex_action_18)
+  , (28,alex_action_19)
+  , (27,alex_action_19)
+  , (26,alex_action_22)
+  , (25,alex_action_23)
+  , (24,alex_action_24)
+  , (23,alex_action_25)
+  , (22,alex_action_26)
+  , (21,alex_action_27)
+  , (20,alex_action_28)
+  , (19,alex_action_29)
+  , (18,alex_action_30)
+  , (17,alex_action_31)
+  , (16,alex_action_32)
+  , (15,alex_action_33)
+  , (14,alex_action_34)
+  , (13,alex_action_35)
+  , (12,alex_action_36)
+  , (11,alex_action_37)
+  , (10,alex_action_38)
+  , (9,alex_action_39)
+  , (8,alex_action_40)
+  , (7,alex_action_41)
+  , (6,alex_action_42)
+  , (5,alex_action_43)
+  , (4,alex_action_44)
+  , (3,alex_action_45)
+  , (2,alex_action_46)
+  , (1,alex_action_47)
+  , (0,alex_action_48)
   ]
 
-{-# LINE 103 "Lexer.x" #-}
+{-# LINE 108 "Lexer.x" #-}
 
 data Token = ID String       -- e.g. xy123
             | NUM Int        -- e.g. 123
@@ -16654,7 +16674,13 @@ data Token = ID String       -- e.g. xy123
 
             | DCR            -- --
             | ICR            -- ++
+
             | ATRIB          -- =
+            | ATRIB_PLUS
+            | ATRIB_MINUS
+            | ATRIB_MULT
+            | ATRIB_DIV
+            | ATRIB_MOD
 
             | TRUE
             | FALSE
@@ -16714,9 +16740,14 @@ alex_action_37 = \_ -> GEQ
 alex_action_38 = \_ -> L
 alex_action_39 = \_ -> LEQ
 alex_action_40 = \_ -> ATRIB
-alex_action_41 = \_ -> EQUAL
-alex_action_42 = \_ -> NEQUAL
-alex_action_43 =  \_ -> COLON 
+alex_action_41 = \_ -> ATRIB_PLUS
+alex_action_42 = \_ -> ATRIB_MINUS
+alex_action_43 = \_ -> ATRIB_MULT
+alex_action_44 = \_ -> ATRIB_DIV
+alex_action_45 = \_ -> ATRIB_MOD
+alex_action_46 = \_ -> EQUAL
+alex_action_47 = \_ -> NEQUAL
+alex_action_48 =  \_ -> COLON 
 {-# LINE 1 "templates/GenericTemplate.hs" #-}
 -- -----------------------------------------------------------------------------
 -- ALEX TEMPLATE

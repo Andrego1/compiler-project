@@ -1,11 +1,25 @@
-fun main(){ 
+fun main(){
     val x: Int = 2
     val y = 3
     val b: Float = 2
-    //val a = "andre  adrego\n"
+    val a = "andre  adrego\n"
     val z = x + y 
     val a: Boolean = true
     if (z == x){
         x++ 
+    } else {
+        z++
     }
+    print("ola")
+    val z = readln()
+    print(z)
+    while( z > 0){
+        z--
+    }
+    print(readln())
+    //true++
+    b += true // pode ser permitido nesta fase
+    if (true){
+        val q = true
+    } 
 }

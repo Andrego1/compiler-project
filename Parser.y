@@ -54,6 +54,11 @@ var     {VAR}
 "--"    {DCR}
 
 '='     {ATRIB}
+"+="    {ATRIB_PLUS}
+"-="    {ATRIB_MINUS}
+"*="    {ATRIB_MULT}
+"/="    {ATRIB_DIV}
+"%="    {ATRIB_MOD}
 
 true    {TRUE}
 false   {FALSE}
@@ -66,82 +71,134 @@ print   {PRINT}
 
 %left "||"
 %left "&&"
-%nonassoc EQUAL NEQUAL
-%nonassoc G GEQ L LEQ
+%nonassoc "==" "!="
+%nonassoc '>' ">=" '<' "<="
 %left '+' '-'
 %left '*' '/' '%'
-%right NOT
-%right ICR DCR
+%right '!'
+%right "++" "--"
 
 %% 
 
 -- Define o ponto de entrada
-Fun : fun main '(' ')' '{' Commands '}' { $6 } 
-         | {- empty -}                  { [] }
+Fun : fun main '(' ')' '{' Commands '}'      { $6 } 
+         | {- empty -}                       { [] }
 
-Commands : Command Commands                 { $1 : $2 } --lista de commands
-         | {- empty -}                      { [] }
+Commands : Command Commands                  { $1 : $2 } --lista de commands
+         | {- empty -}                       { [] }
 
-Command : Decl                                 { $1 }
-        | Assign                               { $1 }
-        | Aexp                                 { $1 }
-        | Bexp                                 { $1 }
-        | If                                   { $1 }
-        | While                                { $1 }
-        | Print                                { $1 }
-        | Readln                               { $1 }
+Command : Decl                               { $1 }
+        | Assign                             { $1 }
+        | Expr                               { $1 }
+        --| Bexp                               { $1 }
+        | If                                 { $1 }
+        | While                              { $1 }
+        | Print                              { $1 }
+        --| Readln                             { $1 }
 
-Readln : readln '(' ')'        { ReadlnNode }
+Readln : readln '(' ')'                      { ReadlnNode }
 
-Print : print '(' Aexp ')'                     { PrintNode $3 }
-      | print '(' Bexp ')'                     { PrintNode $3 }
-      | print '(' str ')'                   { PrintNode (StringNode $3) } --corrige um erro
+Print : print '(' InitExp ')'                { PrintNode $3 }
 
-If : if '(' Bexp ')' '{' Commands '}'                       { IfNode $3 $6 }
-   | if '(' Bexp ')' '{' Commands '}' else '{' Commands '}' { IfElseNode $3 $6 $10 }
+If : if '(' Expr  ')' '{' Commands '}'                       { IfNode $3 $6 }
+   | if '(' Expr  ')' '{' Commands '}' else '{' Commands '}' { IfElseNode $3 $6 $10 }
 
-While : while '(' Bexp ')' '{' Commands '}'    { WhileNode $3 $6 }
+While : while '(' Expr ')' '{' Commands '}' { WhileNode $3 $6 }
 
 Type : int                  { IntType }
      | float                { FloatType }
      | boolean              { BoolType }
      | string               { StringType }
 
-Decl : var id '=' Aexp                      { VarDecl $2 $4 }
-     | var id '=' Bexp                      { VarDecl $2 $4 }
-     | var id ':' Type '=' Aexp             { VarDeclTyped $2 $4 $6 }
-     | var id ':' Type '=' Bexp             { VarDeclTyped $2 $4 $6 }
-     | val id '=' Aexp                      { ValDecl $2 $4 }
-     | val id '=' Bexp                      { ValDecl $2 $4 }
-     | val id ':' Type '=' Aexp             { ValDeclTyped $2 $4 $6 }
-     | val id ':' Type '=' Bexp             { ValDeclTyped $2 $4 $6 }
+-- Inicialização permitidas
+InitExp : Expr                     { $1 }  -- Para int e float
+        --| Bexp                     { $1 }  -- Para boolean
+        | Sexp                     { $1 }  -- Para string
+        | Readln                   { ReadlnNode } -- Leitura da entrada padrão
 
-Assign : id '=' Aexp                         { AssignNode $1 $3 }
-       | id '=' Bexp                         { AssignNode $1 $3 }
+Decl : var id '=' InitExp                      { VarDecl $2 $4 }
+     | val id '=' InitExp                      { ValDecl $2 $4 }
+     | var id ':' Type '=' InitExp             { VarDeclTyped $2 $4 $6 }
+     | val id ':' Type '=' InitExp             { ValDeclTyped $2 $4 $6 }
 
-Aexp : num                                  { NumNode  $1 }
-     -- | real                                 { RealNode $1 }
-     | id                                   { IdNode $1 }
-     | Aexp '+' Aexp                        { AddNode $1 $3 }
-     | Aexp '-' Aexp                        { SubNode $1 $3 }
-     | Aexp '*' Aexp                        { MultNode $1 $3 }
-     | Aexp '/' Aexp                        { DivNode $1 $3 }
-     | Aexp '%' Aexp                        { ModNode $1 $3 }
-     | Aexp "++"                            { IncrNode $1 }
-     | Aexp "--"                            { DecrNode $1 }
+Assign : id '=' Expr                        { AssignNode $1 $3 }      -- Atribuição direta
+       | id "+=" Expr                       { AddAssignNode $1 $3 }   -- Atribuição com soma
+       | id "-=" Expr                       { SubAssignNode $1 $3 }   -- Atribuição com soma
+       | id "*=" Expr                       { MultAssignNode $1 $3 }  -- Atribuição com multiplicação
+       | id "/=" Expr                       { DivAssignNode $1 $3 }   -- Atribuição com divisão
+       | id "%=" Expr                       { ModAssignNode $1 $3 }   -- Atribuição com módulo
 
-Bexp : true                                 { BoolNode True }
-     | false                                { BoolNode False }
-     | id                                   { IdNode $1 }
-     | Bexp "&&" Bexp                       { AndNode $1 $3 }
-     | Bexp "||" Bexp                       { OrNode $1 $3 }
-     | Aexp '>' Aexp                        { GtNode $1 $3 }
-     | Aexp ">=" Aexp                       { GeNode $1 $3 }
-     | Aexp '<' Aexp                        { LtNode $1 $3 }
-     | Aexp "<=" Aexp                       { LeNode $1 $3 }
-     | Aexp "==" Aexp                       { EqNode $1 $3 }
-     | Bexp "!=" Bexp                       { NeNode $1 $3 }
-     | '!' Bexp                             { NotNode $2 }
+Expr : --BoolExpr         { $1 }
+     --| Aexp             { $1 }
+     Expr '+' Expr                     { AddNode $1 $3 }
+     | Expr '-' Expr                     { SubNode $1 $3 }
+     | Expr '*' Expr                     { MultNode $1 $3 }
+     | Expr '/' Expr                     { DivNode $1 $3 }
+     | Expr '%' Expr                     { ModNode $1 $3 }
+     | PostIncDecExp                     { $1 }
+     | Expr "&&" Expr    { AndNode $1 $3 }
+     | Expr "||" Expr    { OrNode $1 $3 }
+     | Expr '>' Expr     { GtNode $1 $3 }
+     | Expr ">=" Expr    { GeNode $1 $3 }
+     | Expr '<' Expr     { LtNode $1 $3 }
+     | Expr "<=" Expr    { LeNode $1 $3 }
+     | Expr "==" Expr    { EqNode $1 $3 }
+     | Expr "!=" Expr    { NeNode $1 $3 }
+     | '!' Expr          { NotNode $2 }
+     | '(' Expr ')'      {$2}
+     | Atomic                        { $1 }
+
+-- NOTAS:
+-- poso tentar fazer com um duplicado de BoolExpr para que seja apenas usado em if e while
+-- no exemplo b += true em que b é um int posso resolver agora ou deixar passar e dizer que é um erro de tipo
+-- devo fazer ; ? e se devo fazer 
+-- melhorar a AST !!!
+
+
+-- Booleanos: operadores lógicos e de comparação
+--BoolExpr : AtomicBool "&&" AtomicBool        { AndNode $1 $3 }
+--         | AtomicBool "||" AtomicBool        { OrNode $1 $3 }
+--         | Aexp '>' Aexp                 { GtNode $1 $3 }
+--         | Aexp ">=" Aexp                { GeNode $1 $3 }
+--         | Aexp '<' Aexp                 { LtNode $1 $3 }
+--         | Aexp "<=" Aexp                { LeNode $1 $3 }
+--         | Aexp "==" Aexp                { EqNode $1 $3 }
+--         | Aexp "!=" Aexp                { NeNode $1 $3 }
+--         | '!' BoolExpr                  { NotNode $2 }
+--         | AtomicBool                 { $1 }        -- Usa `AtomicBoolExp` para booleanos simples
+
+-- Operações aritméticas
+--Aexp : --num                              { NumNode $1 }
+--      Aexp '+' Aexp                     { AddNode $1 $3 }
+--     | Aexp '-' Aexp                     { SubNode $1 $3 }
+--     | Aexp '*' Aexp                     { MultNode $1 $3 }
+--     | Aexp '/' Aexp                     { DivNode $1 $3 }
+--     | Aexp '%' Aexp                     { ModNode $1 $3 }
+--     | PostIncDecExp                     { $1 }
+--     | AtomicAexp                        { $1 }
+
+-- Pós-incremento e pós-decremento
+PostIncDecExp : id "++"          { IncrNode (IdNode $1) }
+              | id "--"          { DecrNode (IdNode $1) }
+
+-- Expressão booleana simples (literais booleanos e identificadores)
+--AtomicBool : true                     { BoolNode True }
+--              | false                    { BoolNode False }
+--              | id                       { IdNode $1 }
+--              | '(' BoolExpr ')'         { $2 }
+
+-- Expressão aritmética simples (números e identificadores)
+--AtomicAexp : num                         { NumNode $1 }
+--           | id                          { IdNode $1 }
+--           | '(' Aexp ')'                { $2 }
+
+Atomic : id              {IdNode $1}
+       | num             {NumNode $1}
+       | true            {BoolNode True}
+       | false           {BoolNode False}
+       --| '(' Expr ')'    {$2}
+
+Sexp : str                         { StringNode $1 }
 
 {
 -- AST Nodes
@@ -176,6 +233,11 @@ data Exp = NumNode Int
          | ValDecl String Exp
          | ValDeclTyped String Type Exp
          | AssignNode String Exp
+         | AddAssignNode String Exp     -- Representa `+=`
+         | SubAssignNode String Exp     -- Representa `-=`
+         | MultAssignNode String Exp    -- Representa `*=`
+         | DivAssignNode String Exp     -- Representa `/=`
+         | ModAssignNode String Exp     -- Representa `%=`
          deriving (Show, Eq)
 
 data Type = IntType | FloatType | BoolType | StringType deriving (Show, Eq)
