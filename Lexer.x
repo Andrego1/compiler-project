@@ -92,6 +92,11 @@ tokens :-
 
     -- Atribuicao
     "="                         {\_ -> ATRIB}
+    "+="                        {\_ -> ATRIB_PLUS}
+    "-="                        {\_ -> ATRIB_MINUS}
+    "*="                        {\_ -> ATRIB_MULT}
+    "/="                        {\_ -> ATRIB_DIV}
+    "%="                        {\_ -> ATRIB_MOD}
     
     -- Igualdade
     "=="                        {\_ -> EQUAL}
@@ -146,7 +151,13 @@ data Token = ID String       -- e.g. xy123
 
             | DCR            -- --
             | ICR            -- ++
+
             | ATRIB          -- =
+            | ATRIB_PLUS
+            | ATRIB_MINUS
+            | ATRIB_MULT
+            | ATRIB_DIV
+            | ATRIB_MOD
 
             | TRUE
             | FALSE
