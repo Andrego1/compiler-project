@@ -148,6 +148,12 @@ Expr : --BoolExpr         { $1 }
      | '(' Expr ')'      {$2}
      | Atomic                        { $1 }
 
+-- NOTAS:
+-- poso tentar fazer com um duplicado de BoolExpr para que seja apenas usado em if e while
+-- no exemplo b += true em que b é um int posso resolver agora ou deixar passar e dizer que é um erro de tipo
+-- devo fazer ; ? e se devo fazer 
+-- melhorar a AST !!!
+
 
 -- Booleanos: operadores lógicos e de comparação
 --BoolExpr : AtomicBool "&&" AtomicBool        { AndNode $1 $3 }
@@ -172,8 +178,8 @@ Expr : --BoolExpr         { $1 }
 --     | AtomicAexp                        { $1 }
 
 -- Pós-incremento e pós-decremento
-PostIncDecExp : Atomic "++"          { IncrNode $1 }
-              | Atomic "--"          { DecrNode $1 }
+PostIncDecExp : id "++"          { IncrNode (IdNode $1) }
+              | id "--"          { DecrNode (IdNode $1) }
 
 -- Expressão booleana simples (literais booleanos e identificadores)
 --AtomicBool : true                     { BoolNode True }

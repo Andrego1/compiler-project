@@ -56,8 +56,8 @@ Grammar
 	Expr -> '!' Expr                                   (47)
 	Expr -> '(' Expr ')'                               (48)
 	Expr -> Atomic                                     (49)
-	PostIncDecExp -> Atomic "++"                       (50)
-	PostIncDecExp -> Atomic "--"                       (51)
+	PostIncDecExp -> id "++"                           (50)
+	PostIncDecExp -> id "--"                           (51)
 	Atomic -> id                                       (52)
 	Atomic -> num                                      (53)
 	Atomic -> true                                     (54)
@@ -417,8 +417,6 @@ State 16
 State 17
 
 	Expr -> Atomic .                                    (rule 49)
-	PostIncDecExp -> Atomic . "++"                      (rule 50)
-	PostIncDecExp -> Atomic . "--"                      (rule 51)
 
 	id             reduce using rule 49
 	num            reduce using rule 49
@@ -443,8 +441,6 @@ State 17
 	"&&"           reduce using rule 49
 	"||"           reduce using rule 49
 	'!'            reduce using rule 49
-	"++"           shift, and enter state 43
-	"--"           shift, and enter state 44
 	true           reduce using rule 49
 	false          reduce using rule 49
 	print          reduce using rule 49
@@ -458,6 +454,8 @@ State 18
 	Assign -> id . "*=" Expr                            (rule 30)
 	Assign -> id . "/=" Expr                            (rule 31)
 	Assign -> id . "%=" Expr                            (rule 32)
+	PostIncDecExp -> id . "++"                          (rule 50)
+	PostIncDecExp -> id . "--"                          (rule 51)
 	Atomic -> id .                                      (rule 52)
 
 	id             reduce using rule 52
@@ -482,14 +480,14 @@ State 18
 	"&&"           reduce using rule 52
 	"||"           reduce using rule 52
 	'!'            reduce using rule 52
-	"++"           reduce using rule 52
-	"--"           reduce using rule 52
-	'='            shift, and enter state 37
-	"+="           shift, and enter state 38
-	"-="           shift, and enter state 39
-	"*="           shift, and enter state 40
-	"/="           shift, and enter state 41
-	"%="           shift, and enter state 42
+	"++"           shift, and enter state 37
+	"--"           shift, and enter state 38
+	'='            shift, and enter state 39
+	"+="           shift, and enter state 40
+	"-="           shift, and enter state 41
+	"*="           shift, and enter state 42
+	"/="           shift, and enter state 43
+	"%="           shift, and enter state 44
 	true           reduce using rule 52
 	false          reduce using rule 52
 	print          reduce using rule 52
@@ -522,8 +520,6 @@ State 19
 	"&&"           reduce using rule 53
 	"||"           reduce using rule 53
 	'!'            reduce using rule 53
-	"++"           reduce using rule 53
-	"--"           reduce using rule 53
 	true           reduce using rule 53
 	false          reduce using rule 53
 	print          reduce using rule 53
@@ -617,8 +613,6 @@ State 26
 	"&&"           reduce using rule 54
 	"||"           reduce using rule 54
 	'!'            reduce using rule 54
-	"++"           reduce using rule 54
-	"--"           reduce using rule 54
 	true           reduce using rule 54
 	false          reduce using rule 54
 	print          reduce using rule 54
@@ -651,8 +645,6 @@ State 27
 	"&&"           reduce using rule 55
 	"||"           reduce using rule 55
 	'!'            reduce using rule 55
-	"++"           reduce using rule 55
-	"--"           reduce using rule 55
 	true           reduce using rule 55
 	false          reduce using rule 55
 	print          reduce using rule 55
@@ -732,6 +724,8 @@ State 30
 
 State 31
 
+	PostIncDecExp -> id . "++"                          (rule 50)
+	PostIncDecExp -> id . "--"                          (rule 51)
 	Atomic -> id .                                      (rule 52)
 
 	id             reduce using rule 52
@@ -757,8 +751,8 @@ State 31
 	"&&"           reduce using rule 52
 	"||"           reduce using rule 52
 	'!'            reduce using rule 52
-	"++"           reduce using rule 52
-	"--"           reduce using rule 52
+	"++"           shift, and enter state 37
+	"--"           shift, and enter state 38
 	true           reduce using rule 52
 	false          reduce using rule 52
 	print          reduce using rule 52
@@ -848,97 +842,7 @@ State 36
 
 State 37
 
-	Assign -> id '=' . Expr                             (rule 27)
-
-	id             shift, and enter state 31
-	num            shift, and enter state 19
-	'('            shift, and enter state 20
-	'!'            shift, and enter state 25
-	true           shift, and enter state 26
-	false          shift, and enter state 27
-
-	Expr           goto state 78
-	PostIncDecExp  goto state 16
-	Atomic         goto state 17
-
-State 38
-
-	Assign -> id "+=" . Expr                            (rule 28)
-
-	id             shift, and enter state 31
-	num            shift, and enter state 19
-	'('            shift, and enter state 20
-	'!'            shift, and enter state 25
-	true           shift, and enter state 26
-	false          shift, and enter state 27
-
-	Expr           goto state 77
-	PostIncDecExp  goto state 16
-	Atomic         goto state 17
-
-State 39
-
-	Assign -> id "-=" . Expr                            (rule 29)
-
-	id             shift, and enter state 31
-	num            shift, and enter state 19
-	'('            shift, and enter state 20
-	'!'            shift, and enter state 25
-	true           shift, and enter state 26
-	false          shift, and enter state 27
-
-	Expr           goto state 76
-	PostIncDecExp  goto state 16
-	Atomic         goto state 17
-
-State 40
-
-	Assign -> id "*=" . Expr                            (rule 30)
-
-	id             shift, and enter state 31
-	num            shift, and enter state 19
-	'('            shift, and enter state 20
-	'!'            shift, and enter state 25
-	true           shift, and enter state 26
-	false          shift, and enter state 27
-
-	Expr           goto state 75
-	PostIncDecExp  goto state 16
-	Atomic         goto state 17
-
-State 41
-
-	Assign -> id "/=" . Expr                            (rule 31)
-
-	id             shift, and enter state 31
-	num            shift, and enter state 19
-	'('            shift, and enter state 20
-	'!'            shift, and enter state 25
-	true           shift, and enter state 26
-	false          shift, and enter state 27
-
-	Expr           goto state 74
-	PostIncDecExp  goto state 16
-	Atomic         goto state 17
-
-State 42
-
-	Assign -> id "%=" . Expr                            (rule 32)
-
-	id             shift, and enter state 31
-	num            shift, and enter state 19
-	'('            shift, and enter state 20
-	'!'            shift, and enter state 25
-	true           shift, and enter state 26
-	false          shift, and enter state 27
-
-	Expr           goto state 73
-	PostIncDecExp  goto state 16
-	Atomic         goto state 17
-
-State 43
-
-	PostIncDecExp -> Atomic "++" .                      (rule 50)
+	PostIncDecExp -> id "++" .                          (rule 50)
 
 	id             reduce using rule 50
 	num            reduce using rule 50
@@ -968,9 +872,9 @@ State 43
 	print          reduce using rule 50
 
 
-State 44
+State 38
 
-	PostIncDecExp -> Atomic "--" .                      (rule 51)
+	PostIncDecExp -> id "--" .                          (rule 51)
 
 	id             reduce using rule 51
 	num            reduce using rule 51
@@ -999,6 +903,96 @@ State 44
 	false          reduce using rule 51
 	print          reduce using rule 51
 
+
+State 39
+
+	Assign -> id '=' . Expr                             (rule 27)
+
+	id             shift, and enter state 31
+	num            shift, and enter state 19
+	'('            shift, and enter state 20
+	'!'            shift, and enter state 25
+	true           shift, and enter state 26
+	false          shift, and enter state 27
+
+	Expr           goto state 78
+	PostIncDecExp  goto state 16
+	Atomic         goto state 17
+
+State 40
+
+	Assign -> id "+=" . Expr                            (rule 28)
+
+	id             shift, and enter state 31
+	num            shift, and enter state 19
+	'('            shift, and enter state 20
+	'!'            shift, and enter state 25
+	true           shift, and enter state 26
+	false          shift, and enter state 27
+
+	Expr           goto state 77
+	PostIncDecExp  goto state 16
+	Atomic         goto state 17
+
+State 41
+
+	Assign -> id "-=" . Expr                            (rule 29)
+
+	id             shift, and enter state 31
+	num            shift, and enter state 19
+	'('            shift, and enter state 20
+	'!'            shift, and enter state 25
+	true           shift, and enter state 26
+	false          shift, and enter state 27
+
+	Expr           goto state 76
+	PostIncDecExp  goto state 16
+	Atomic         goto state 17
+
+State 42
+
+	Assign -> id "*=" . Expr                            (rule 30)
+
+	id             shift, and enter state 31
+	num            shift, and enter state 19
+	'('            shift, and enter state 20
+	'!'            shift, and enter state 25
+	true           shift, and enter state 26
+	false          shift, and enter state 27
+
+	Expr           goto state 75
+	PostIncDecExp  goto state 16
+	Atomic         goto state 17
+
+State 43
+
+	Assign -> id "/=" . Expr                            (rule 31)
+
+	id             shift, and enter state 31
+	num            shift, and enter state 19
+	'('            shift, and enter state 20
+	'!'            shift, and enter state 25
+	true           shift, and enter state 26
+	false          shift, and enter state 27
+
+	Expr           goto state 74
+	PostIncDecExp  goto state 16
+	Atomic         goto state 17
+
+State 44
+
+	Assign -> id "%=" . Expr                            (rule 32)
+
+	id             shift, and enter state 31
+	num            shift, and enter state 19
+	'('            shift, and enter state 20
+	'!'            shift, and enter state 25
+	true           shift, and enter state 26
+	false          shift, and enter state 27
+
+	Expr           goto state 73
+	PostIncDecExp  goto state 16
+	Atomic         goto state 17
 
 State 45
 

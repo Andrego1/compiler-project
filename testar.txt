@@ -1,4 +1,4 @@
-fun main(){ 
+fun main(){
     val x: Int = 2
     val y = 3
     val b: Float = 2
@@ -17,5 +17,9 @@ fun main(){
         z--
     }
     print(readln())
-    true++
+    //true++
+    b += true // pode ser permitido nesta fase
+    if (true){
+        val q = true
+    } 
 }
