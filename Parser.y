@@ -71,12 +71,12 @@ print   {PRINT}
 
 %left "||"
 %left "&&"
-%nonassoc EQUAL NEQUAL
-%nonassoc G GEQ L LEQ
+%nonassoc "==" "!="
+%nonassoc '>' ">=" '<' "<="
 %left '+' '-'
 %left '*' '/' '%'
-%right NOT
-%right ICR DCR
+%right '!'
+%right "++" "--"
 
 %% 
 
@@ -89,7 +89,7 @@ Commands : Command Commands                  { $1 : $2 } --lista de commands
 
 Command : Decl                               { $1 }
         | Assign                             { $1 }
-        | Aexp                               { $1 }
+        | Expr                               { $1 }
         --| Bexp                               { $1 }
         | If                                 { $1 }
         | While                              { $1 }
@@ -121,53 +121,76 @@ Decl : var id '=' InitExp                      { VarDecl $2 $4 }
      | var id ':' Type '=' InitExp             { VarDeclTyped $2 $4 $6 }
      | val id ':' Type '=' InitExp             { ValDeclTyped $2 $4 $6 }
 
-Assign : id '=' Aexp                        { AssignNode $1 $3 }      -- Atribuição direta
-       | id "+=" Aexp                       { AddAssignNode $1 $3 }   -- Atribuição com soma
-       | id "-=" Aexp                       { SubAssignNode $1 $3 }   -- Atribuição com soma
-       | id "*=" Aexp                       { MultAssignNode $1 $3 }  -- Atribuição com multiplicação
-       | id "/=" Aexp                       { DivAssignNode $1 $3 }   -- Atribuição com divisão
-       | id "%=" Aexp                       { ModAssignNode $1 $3 }   -- Atribuição com módulo
+Assign : id '=' Expr                        { AssignNode $1 $3 }      -- Atribuição direta
+       | id "+=" Expr                       { AddAssignNode $1 $3 }   -- Atribuição com soma
+       | id "-=" Expr                       { SubAssignNode $1 $3 }   -- Atribuição com soma
+       | id "*=" Expr                       { MultAssignNode $1 $3 }  -- Atribuição com multiplicação
+       | id "/=" Expr                       { DivAssignNode $1 $3 }   -- Atribuição com divisão
+       | id "%=" Expr                       { ModAssignNode $1 $3 }   -- Atribuição com módulo
 
-Expr : BoolExpr         { $1 }
-     | Aexp             { $1 }
+Expr : --BoolExpr         { $1 }
+     --| Aexp             { $1 }
+     Expr '+' Expr                     { AddNode $1 $3 }
+     | Expr '-' Expr                     { SubNode $1 $3 }
+     | Expr '*' Expr                     { MultNode $1 $3 }
+     | Expr '/' Expr                     { DivNode $1 $3 }
+     | Expr '%' Expr                     { ModNode $1 $3 }
+     | PostIncDecExp                     { $1 }
+     | Expr "&&" Expr    { AndNode $1 $3 }
+     | Expr "||" Expr    { OrNode $1 $3 }
+     | Expr '>' Expr     { GtNode $1 $3 }
+     | Expr ">=" Expr    { GeNode $1 $3 }
+     | Expr '<' Expr     { LtNode $1 $3 }
+     | Expr "<=" Expr    { LeNode $1 $3 }
+     | Expr "==" Expr    { EqNode $1 $3 }
+     | Expr "!=" Expr    { NeNode $1 $3 }
+     | '!' Expr          { NotNode $2 }
+     | '(' Expr ')'      {$2}
+     | Atomic                        { $1 }
+
 
 -- Booleanos: operadores lógicos e de comparação
-BoolExpr : AtomicBool "&&" AtomicBool        { AndNode $1 $3 }
-         | AtomicBool "||" AtomicBool        { OrNode $1 $3 }
-         | Aexp '>' Aexp                 { GtNode $1 $3 }
-         | Aexp ">=" Aexp                { GeNode $1 $3 }
-         | Aexp '<' Aexp                 { LtNode $1 $3 }
-         | Aexp "<=" Aexp                { LeNode $1 $3 }
-         | Aexp "==" Aexp                { EqNode $1 $3 }
-         | Aexp "!=" Aexp                { NeNode $1 $3 }
-         | '!' BoolExpr                  { NotNode $2 }
-         | AtomicBool                 { $1 }        -- Usa `AtomicBoolExp` para booleanos simples
+--BoolExpr : AtomicBool "&&" AtomicBool        { AndNode $1 $3 }
+--         | AtomicBool "||" AtomicBool        { OrNode $1 $3 }
+--         | Aexp '>' Aexp                 { GtNode $1 $3 }
+--         | Aexp ">=" Aexp                { GeNode $1 $3 }
+--         | Aexp '<' Aexp                 { LtNode $1 $3 }
+--         | Aexp "<=" Aexp                { LeNode $1 $3 }
+--         | Aexp "==" Aexp                { EqNode $1 $3 }
+--         | Aexp "!=" Aexp                { NeNode $1 $3 }
+--         | '!' BoolExpr                  { NotNode $2 }
+--         | AtomicBool                 { $1 }        -- Usa `AtomicBoolExp` para booleanos simples
 
 -- Operações aritméticas
-Aexp : --num                              { NumNode $1 }
-      Aexp '+' Aexp                     { AddNode $1 $3 }
-     | Aexp '-' Aexp                     { SubNode $1 $3 }
-     | Aexp '*' Aexp                     { MultNode $1 $3 }
-     | Aexp '/' Aexp                     { DivNode $1 $3 }
-     | Aexp '%' Aexp                     { ModNode $1 $3 }
-     | PostIncDecExp                     { $1 }
-     | AtomicAexp                        { $1 }
+--Aexp : --num                              { NumNode $1 }
+--      Aexp '+' Aexp                     { AddNode $1 $3 }
+--     | Aexp '-' Aexp                     { SubNode $1 $3 }
+--     | Aexp '*' Aexp                     { MultNode $1 $3 }
+--     | Aexp '/' Aexp                     { DivNode $1 $3 }
+--     | Aexp '%' Aexp                     { ModNode $1 $3 }
+--     | PostIncDecExp                     { $1 }
+--     | AtomicAexp                        { $1 }
 
 -- Pós-incremento e pós-decremento
-PostIncDecExp : AtomicAexp "++"          { IncrNode $1 }
-              | AtomicAexp "--"          { DecrNode $1 }
+PostIncDecExp : Atomic "++"          { IncrNode $1 }
+              | Atomic "--"          { DecrNode $1 }
 
 -- Expressão booleana simples (literais booleanos e identificadores)
-AtomicBool : true                     { BoolNode True }
-              | false                    { BoolNode False }
-              | id                       { IdNode $1 }
-              | '(' BoolExpr ')'         { $2 }
+--AtomicBool : true                     { BoolNode True }
+--              | false                    { BoolNode False }
+--              | id                       { IdNode $1 }
+--              | '(' BoolExpr ')'         { $2 }
 
 -- Expressão aritmética simples (números e identificadores)
-AtomicAexp : num                         { NumNode $1 }
-           | id                          { IdNode $1 }
-           | '(' Aexp ')'                { $2 }
+--AtomicAexp : num                         { NumNode $1 }
+--           | id                          { IdNode $1 }
+--           | '(' Aexp ')'                { $2 }
 
+Atomic : id              {IdNode $1}
+       | num             {NumNode $1}
+       | true            {BoolNode True}
+       | false           {BoolNode False}
+       --| '(' Expr ')'    {$2}
 
 Sexp : str                         { StringNode $1 }
 

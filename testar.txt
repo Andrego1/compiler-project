@@ -7,7 +7,15 @@ fun main(){
     val a: Boolean = true
     if (z == x){
         x++ 
+    } else {
+        z++
     }
     print("ola")
     val z = readln()
+    print(z)
+    while( z > 0){
+        z--
+    }
+    print(readln())
+    true++
 }
