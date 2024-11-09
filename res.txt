@@ -1,4 +1,4 @@
 "Tokens: "
-[FUN,MAIN,LPAREN,RPAREN,LBRACE,VAR,ID "sucess",ATRIB,TRUE,IF,LPAREN,ID "sucess",RPAREN,ID "sucess",ATRIB,FALSE,ELSE,ID "sucess",ATRIB,TRUE,VAL,ID "i",ATRIB,NUM 0,VAR,ID "t",ATRIB,TRUE,IF,LPAREN,ID "i",G,NUM 10,RPAREN,LBRACE,ID "t",ATRIB,FALSE,RBRACE,ELSE,LBRACE,ID "t",ATRIB,TRUE,RBRACE,PRINT,LPAREN,ID "t",RPAREN,RBRACE]
+[FUN,MAIN,LPAREN,RPAREN,LBRACE,VAR,ID "i",ATRIB,NUM 0,WHILE,LPAREN,ID "i",L,NUM 10,RPAREN,LBRACE,PRINT,LPAREN,ID "i",RPAREN,ID "i",ICR,RBRACE,RBRACE]
 "AST: "
-[VarDecl "sucess" (BoolNode True),IfElseNode (IdNode "sucess") [AssignNode "sucess" (BoolNode False)] [AssignNode "sucess" (BoolNode True)],ValDecl "i" (NumNode 0),VarDecl "t" (BoolNode True),IfElseNode (GtNode (IdNode "i") (NumNode 10)) [AssignNode "t" (BoolNode False)] [AssignNode "t" (BoolNode True)],PrintNode (IdNode "t")]
+ProgramNode [VarDecl (IdNode "i") (NumNode 0),WhileNode (LtNode (IdNode "i") (NumNode 10)) [PrintNode (IdNode "i"),IncrNode (IdNode "i")]]

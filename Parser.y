@@ -82,8 +82,7 @@ print   {PRINT}
 %% 
 
 -- Define o ponto de entrada
-Fun : fun main '(' ')' '{' Commands '}'  { $6 } 
-         | {- empty -}                   { [] }
+Fun : fun main '(' ')' '{' Commands '}'  { ProgramNode $6 } 
 
 -- Lista de comandos agora com possibilidade de por `;`
 Commands : Command ';' Commands         { $1 : $3 }
@@ -121,10 +120,10 @@ InitExp : Expr                          { $1 }  -- Para int e float
         | Sexp                          { $1 }  -- Para string
         | Readln                        { ReadlnNode } -- Leitura da entrada padrão
 
-Decl : var id '=' InitExp               { VarDecl $2 $4 }
-     | val id '=' InitExp               { ValDecl $2 $4 }
-     | var id ':' Type '=' InitExp      { VarDeclTyped $2 $4 $6 }
-     | val id ':' Type '=' InitExp      { ValDeclTyped $2 $4 $6 }
+Decl : var id '=' InitExp               { VarDecl (IdNode $2) $4 }
+     | val id '=' InitExp               { ValDecl (IdNode $2) $4 }
+     | var id ':' Type '=' InitExp      { VarDeclTyped (IdNode $2) $4 $6 }
+     | val id ':' Type '=' InitExp      { ValDeclTyped (IdNode $2) $4 $6 }
 
 Assign : id '=' Expr                    { AssignNode $1 $3 }      -- Atribuição direta
        | id "+=" Expr                   { AddAssignNode $1 $3 }   -- Atribuição com soma
@@ -234,10 +233,10 @@ data Exp = ProgramNode [Exp]             -- Novo nó para encapsular a lista pri
          | WhileNode Exp [Exp]
          | PrintNode Exp
          | ReadlnNode
-         | VarDecl String Exp
-         | VarDeclTyped String Type Exp
-         | ValDecl String Exp
-         | ValDeclTyped String Type Exp
+         | VarDecl Exp Exp
+         | VarDeclTyped Exp Type Exp
+         | ValDecl Exp Exp
+         | ValDeclTyped Exp Type Exp
          | AssignNode String Exp
          | AddAssignNode String Exp
          | SubAssignNode String Exp
