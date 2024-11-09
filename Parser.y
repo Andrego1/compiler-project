@@ -11,7 +11,7 @@ import Lexer
 
 id      {ID $$}
 num     {NUM $$}
--- real    {REAL $$}
+real    {REAL $$}
 str  {STR $$}
 
 '('     {LPAREN}
@@ -153,6 +153,7 @@ Expr : --BoolExpr         { $1 }
 -- no exemplo b += true em que b é um int posso resolver agora ou deixar passar e dizer que é um erro de tipo
 -- devo fazer ; ? e se devo fazer 
 -- melhorar a AST !!!
+-- melhorar if ?? um if com {} e um sem, este ultimo apenas um comando
 
 
 -- Booleanos: operadores lógicos e de comparação
@@ -194,6 +195,7 @@ PostIncDecExp : id "++"          { IncrNode (IdNode $1) }
 
 Atomic : id              {IdNode $1}
        | num             {NumNode $1}
+       | real            {RealNode $1}
        | true            {BoolNode True}
        | false           {BoolNode False}
        --| '(' Expr ')'    {$2}
@@ -203,7 +205,7 @@ Sexp : str                         { StringNode $1 }
 {
 -- AST Nodes
 data Exp = NumNode Int
-         -- | RealNode Float
+         | RealNode Float
          | StringNode String
          | IdNode String
          | AddNode Exp Exp
