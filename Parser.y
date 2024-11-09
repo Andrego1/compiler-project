@@ -81,72 +81,67 @@ print   {PRINT}
 %% 
 
 -- Define o ponto de entrada
-Fun : fun main '(' ')' '{' Commands '}'      { $6 } 
-         | {- empty -}                       { [] }
+Fun : fun main '(' ')' '{' Commands '}'  { $6 } 
+         | {- empty -}                   { [] }
 
-Commands : Command Commands                  { $1 : $2 } --lista de commands
-         | {- empty -}                       { [] }
+Commands : Command Commands              { $1 : $2 } --lista de commands
+         | {- empty -}                   { [] }
 
-Command : Decl                               { $1 }
-        | Assign                             { $1 }
-        | Expr                               { $1 }
-        --| Bexp                               { $1 }
-        | If                                 { $1 }
-        | While                              { $1 }
-        | Print                              { $1 }
-        --| Readln                             { $1 }
+Command : Decl                          { $1 }
+        | Assign                        { $1 }
+        | Expr                          { $1 }
+        | If                            { $1 }
+        | While                         { $1 }
+        | Print                         { $1 }
 
-Readln : readln '(' ')'                      { ReadlnNode }
+Readln : readln '(' ')'                 { ReadlnNode }
 
-Print : print '(' InitExp ')'                { PrintNode $3 }
+Print : print '(' InitExp ')'           { PrintNode $3 }
 
 If : if '(' Expr  ')' '{' Commands '}'                       { IfNode $3 $6 }
    | if '(' Expr  ')' '{' Commands '}' else '{' Commands '}' { IfElseNode $3 $6 $10 }
 
 While : while '(' Expr ')' '{' Commands '}' { WhileNode $3 $6 }
 
-Type : int                  { IntType }
-     | float                { FloatType }
-     | boolean              { BoolType }
-     | string               { StringType }
+Type : int                              { IntType }
+     | float                            { FloatType }
+     | boolean                          { BoolType }
+     | string                           { StringType }
 
 -- Inicialização permitidas
-InitExp : Expr                     { $1 }  -- Para int e float
-        --| Bexp                     { $1 }  -- Para boolean
-        | Sexp                     { $1 }  -- Para string
-        | Readln                   { ReadlnNode } -- Leitura da entrada padrão
+InitExp : Expr                          { $1 }  -- Para int e float
+        | Sexp                          { $1 }  -- Para string
+        | Readln                        { ReadlnNode } -- Leitura da entrada padrão
 
-Decl : var id '=' InitExp                      { VarDecl $2 $4 }
-     | val id '=' InitExp                      { ValDecl $2 $4 }
-     | var id ':' Type '=' InitExp             { VarDeclTyped $2 $4 $6 }
-     | val id ':' Type '=' InitExp             { ValDeclTyped $2 $4 $6 }
+Decl : var id '=' InitExp               { VarDecl $2 $4 }
+     | val id '=' InitExp               { ValDecl $2 $4 }
+     | var id ':' Type '=' InitExp      { VarDeclTyped $2 $4 $6 }
+     | val id ':' Type '=' InitExp      { ValDeclTyped $2 $4 $6 }
 
-Assign : id '=' Expr                        { AssignNode $1 $3 }      -- Atribuição direta
-       | id "+=" Expr                       { AddAssignNode $1 $3 }   -- Atribuição com soma
-       | id "-=" Expr                       { SubAssignNode $1 $3 }   -- Atribuição com soma
-       | id "*=" Expr                       { MultAssignNode $1 $3 }  -- Atribuição com multiplicação
-       | id "/=" Expr                       { DivAssignNode $1 $3 }   -- Atribuição com divisão
-       | id "%=" Expr                       { ModAssignNode $1 $3 }   -- Atribuição com módulo
+Assign : id '=' Expr                    { AssignNode $1 $3 }      -- Atribuição direta
+       | id "+=" Expr                   { AddAssignNode $1 $3 }   -- Atribuição com soma
+       | id "-=" Expr                   { SubAssignNode $1 $3 }   -- Atribuição com soma
+       | id "*=" Expr                   { MultAssignNode $1 $3 }  -- Atribuição com multiplicação
+       | id "/=" Expr                   { DivAssignNode $1 $3 }   -- Atribuição com divisão
+       | id "%=" Expr                   { ModAssignNode $1 $3 }   -- Atribuição com módulo
 
-Expr : --BoolExpr         { $1 }
-     --| Aexp             { $1 }
-     Expr '+' Expr                     { AddNode $1 $3 }
-     | Expr '-' Expr                     { SubNode $1 $3 }
-     | Expr '*' Expr                     { MultNode $1 $3 }
-     | Expr '/' Expr                     { DivNode $1 $3 }
-     | Expr '%' Expr                     { ModNode $1 $3 }
-     | PostIncDecExp                     { $1 }
-     | Expr "&&" Expr    { AndNode $1 $3 }
-     | Expr "||" Expr    { OrNode $1 $3 }
-     | Expr '>' Expr     { GtNode $1 $3 }
-     | Expr ">=" Expr    { GeNode $1 $3 }
-     | Expr '<' Expr     { LtNode $1 $3 }
-     | Expr "<=" Expr    { LeNode $1 $3 }
-     | Expr "==" Expr    { EqNode $1 $3 }
-     | Expr "!=" Expr    { NeNode $1 $3 }
-     | '!' Expr          { NotNode $2 }
-     | '(' Expr ')'      {$2}
-     | Atomic                        { $1 }
+Expr : Expr '+' Expr                    { AddNode $1 $3 }
+     | Expr '-' Expr                    { SubNode $1 $3 }
+     | Expr '*' Expr                    { MultNode $1 $3 }
+     | Expr '/' Expr                    { DivNode $1 $3 }
+     | Expr '%' Expr                    { ModNode $1 $3 }
+     | PostIncDecExp                    { $1 }
+     | Expr "&&" Expr                   { AndNode $1 $3 }
+     | Expr "||" Expr                   { OrNode $1 $3 }
+     | Expr '>' Expr                    { GtNode $1 $3 }
+     | Expr ">=" Expr                   { GeNode $1 $3 }
+     | Expr '<' Expr                    { LtNode $1 $3 }
+     | Expr "<=" Expr                   { LeNode $1 $3 }
+     | Expr "==" Expr                   { EqNode $1 $3 }
+     | Expr "!=" Expr                   { NeNode $1 $3 }
+     | '!' Expr                         { NotNode $2 }
+     | '(' Expr ')'                     { $2 }
+     | Atomic                           { $1 }
 
 -- NOTAS:
 -- poso tentar fazer com um duplicado de BoolExpr para que seja apenas usado em if e while
@@ -179,8 +174,8 @@ Expr : --BoolExpr         { $1 }
 --     | AtomicAexp                        { $1 }
 
 -- Pós-incremento e pós-decremento
-PostIncDecExp : id "++"          { IncrNode (IdNode $1) }
-              | id "--"          { DecrNode (IdNode $1) }
+PostIncDecExp : id "++"                 { IncrNode (IdNode $1) }
+              | id "--"                 { DecrNode (IdNode $1) }
 
 -- Expressão booleana simples (literais booleanos e identificadores)
 --AtomicBool : true                     { BoolNode True }
@@ -193,14 +188,13 @@ PostIncDecExp : id "++"          { IncrNode (IdNode $1) }
 --           | id                          { IdNode $1 }
 --           | '(' Aexp ')'                { $2 }
 
-Atomic : id              {IdNode $1}
-       | num             {NumNode $1}
-       | real            {RealNode $1}
-       | true            {BoolNode True}
-       | false           {BoolNode False}
-       --| '(' Expr ')'    {$2}
+Atomic : id                             {IdNode $1}
+       | num                            {NumNode $1}
+       | real                           {RealNode $1}
+       | true                           {BoolNode True}
+       | false                          {BoolNode False}
 
-Sexp : str                         { StringNode $1 }
+Sexp : str                              { StringNode $1 }
 
 {
 -- AST Nodes
