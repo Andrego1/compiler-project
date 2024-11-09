@@ -19,6 +19,7 @@ str  {STR $$}
 '{'     {LBRACE}
 '}'     {RBRACE}
 --','     {COMMA}
+';'     {SEMICOLON}
 
 if      {IF}
 else    {ELSE}
@@ -84,8 +85,9 @@ print   {PRINT}
 Fun : fun main '(' ')' '{' Commands '}'  { $6 } 
          | {- empty -}                   { [] }
 
-Commands : Command Commands              { $1 : $2 } --lista de commands
-         | {- empty -}                   { [] }
+-- Lista de comandos separados por `;`
+Commands : Command SEMICOLON Commands     { $1 : $3 }
+         | {- empty -}                    { [] }
 
 Command : Decl                          { $1 }
         | Assign                        { $1 }
@@ -93,15 +95,20 @@ Command : Decl                          { $1 }
         | If                            { $1 }
         | While                         { $1 }
         | Print                         { $1 }
+        | Readln                          { $1 }
+
+Print : print '(' InitExp ')'             { PrintNode $3 }
 
 Readln : readln '(' ')'                 { ReadlnNode }
 
-Print : print '(' InitExp ')'           { PrintNode $3 }
 
-If : if '(' Expr  ')' '{' Commands '}'                       { IfNode $3 $6 }
-   | if '(' Expr  ')' '{' Commands '}' else '{' Commands '}' { IfElseNode $3 $6 $10 }
+If : if '(' Expr ')' Command              { IfNode $3 [$5] }
+   | if '(' Expr ')' '{' Commands '}'     { IfNode $3 $6 }
+   | if '(' Expr ')' Command else Command { IfElseNode $3 [$5] [$7] }
+   | if '(' Expr ')' '{' Commands '}' else '{' Commands '}' { IfElseNode $3 $6 $10 }
 
-While : while '(' Expr ')' '{' Commands '}' { WhileNode $3 $6 }
+While : while '(' Expr ')' Command        { WhileNode $3 [$5] }
+      | while '(' Expr ')' '{' Commands '}' { WhileNode $3 $6 }
 
 Type : int                              { IntType }
      | float                            { FloatType }
@@ -131,15 +138,15 @@ Expr : Expr '+' Expr                    { AddNode $1 $3 }
      | Expr '/' Expr                    { DivNode $1 $3 }
      | Expr '%' Expr                    { ModNode $1 $3 }
      | PostIncDecExp                    { $1 }
-     | Expr "&&" Expr                   { AndNode $1 $3 }
-     | Expr "||" Expr                   { OrNode $1 $3 }
-     | Expr '>' Expr                    { GtNode $1 $3 }
-     | Expr ">=" Expr                   { GeNode $1 $3 }
-     | Expr '<' Expr                    { LtNode $1 $3 }
-     | Expr "<=" Expr                   { LeNode $1 $3 }
-     | Expr "==" Expr                   { EqNode $1 $3 }
-     | Expr "!=" Expr                   { NeNode $1 $3 }
-     | '!' Expr                         { NotNode $2 }
+     --| Expr "&&" Expr                   { AndNode $1 $3 }
+     --| Expr "||" Expr                   { OrNode $1 $3 }
+     --| Expr '>' Expr                    { GtNode $1 $3 }
+     --| Expr ">=" Expr                   { GeNode $1 $3 }
+     --| Expr '<' Expr                    { LtNode $1 $3 }
+     --| Expr "<=" Expr                   { LeNode $1 $3 }
+     --| Expr "==" Expr                   { EqNode $1 $3 }
+     --| Expr "!=" Expr                   { NeNode $1 $3 }
+     --| '!' Expr                         { NotNode $2 }
      | '(' Expr ')'                     { $2 }
      | Atomic                           { $1 }
 
@@ -152,16 +159,17 @@ Expr : Expr '+' Expr                    { AddNode $1 $3 }
 
 
 -- Booleanos: operadores lógicos e de comparação
---BoolExpr : AtomicBool "&&" AtomicBool        { AndNode $1 $3 }
---         | AtomicBool "||" AtomicBool        { OrNode $1 $3 }
---         | Aexp '>' Aexp                 { GtNode $1 $3 }
---         | Aexp ">=" Aexp                { GeNode $1 $3 }
---         | Aexp '<' Aexp                 { LtNode $1 $3 }
---         | Aexp "<=" Aexp                { LeNode $1 $3 }
---         | Aexp "==" Aexp                { EqNode $1 $3 }
---         | Aexp "!=" Aexp                { NeNode $1 $3 }
---         | '!' BoolExpr                  { NotNode $2 }
---         | AtomicBool                 { $1 }        -- Usa `AtomicBoolExp` para booleanos simples
+BoolExpr : Expr '>' Expr                { GtNode $1 $3 }
+         | Expr ">=" Expr               { GeNode $1 $3 }
+         | Expr '<' Expr                { LtNode $1 $3 }
+         | Expr "<=" Expr               { LeNode $1 $3 }
+         | Expr "==" Expr               { EqNode $1 $3 }
+         | Expr "!=" Expr               { NeNode $1 $3 }
+         | BoolExpr "&&" BoolExpr       { AndNode $1 $3 }
+         | BoolExpr "||" BoolExpr       { OrNode $1 $3 }
+         | '!' BoolExpr                 { NotNode $2 }
+         | '(' BoolExpr ')'             { $2 }
+         | AtomicBool                 { $1 }        -- Usa `AtomicBoolExp` para booleanos simples
 
 -- Operações aritméticas
 --Aexp : --num                              { NumNode $1 }
@@ -193,13 +201,15 @@ Atomic : id                             {IdNode $1}
        | real                           {RealNode $1}
        | true                           {BoolNode True}
        | false                          {BoolNode False}
+       | '(' Expr ')'                     { $2 }
 
 Sexp : str                              { StringNode $1 }
 
 {
--- AST Nodes
-data Exp = NumNode Int
-         | RealNode Float
+-- Nós da AST
+data Exp = ProgramNode [Exp]             -- Novo nó para encapsular a lista principal de comandos
+         | NumNode Int
+         | RealNode Float 
          | StringNode String
          | IdNode String
          | AddNode Exp Exp
@@ -207,8 +217,8 @@ data Exp = NumNode Int
          | MultNode Exp Exp
          | DivNode Exp Exp
          | ModNode Exp Exp
-         | IncrNode Exp 
-         | DecrNode Exp 
+         | IncrNode Exp
+         | DecrNode Exp
          | BoolNode Bool
          | AndNode Exp Exp
          | OrNode Exp Exp
@@ -229,16 +239,17 @@ data Exp = NumNode Int
          | ValDecl String Exp
          | ValDeclTyped String Type Exp
          | AssignNode String Exp
-         | AddAssignNode String Exp     -- Representa `+=`
-         | SubAssignNode String Exp     -- Representa `-=`
-         | MultAssignNode String Exp    -- Representa `*=`
-         | DivAssignNode String Exp     -- Representa `/=`
-         | ModAssignNode String Exp     -- Representa `%=`
+         | AddAssignNode String Exp
+         | SubAssignNode String Exp
+         | MultAssignNode String Exp
+         | DivAssignNode String Exp
+         | ModAssignNode String Exp
          deriving (Show, Eq)
 
 data Type = IntType | FloatType | BoolType | StringType deriving (Show, Eq)
 
 parseError :: [Token] -> a
-parseError toks = error $ "Erro de parsing" ++ show toks
+parseError toks = error $ "Erro de parsing: " ++ show toks
 }
+
 
