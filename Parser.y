@@ -85,9 +85,10 @@ print   {PRINT}
 Fun : fun main '(' ')' '{' Commands '}'  { $6 } 
          | {- empty -}                   { [] }
 
--- Lista de comandos separados por `;`
-Commands : Command SEMICOLON Commands     { $1 : $3 }
-         | {- empty -}                    { [] }
+-- Lista de comandos agora com possibilidade de por `;`
+Commands : Command ';' Commands         { $1 : $3 }
+         | Command Commands             { $1 : $2 }
+         | {- empty -}                  { [] }
 
 Command : Decl                          { $1 }
         | Assign                        { $1 }
@@ -95,20 +96,20 @@ Command : Decl                          { $1 }
         | If                            { $1 }
         | While                         { $1 }
         | Print                         { $1 }
-        | Readln                          { $1 }
+        | Readln                        { $1 }
 
-Print : print '(' InitExp ')'             { PrintNode $3 }
+Print : print '(' InitExp ')'           { PrintNode $3 }
 
 Readln : readln '(' ')'                 { ReadlnNode }
 
 
-If : if '(' Expr ')' Command              { IfNode $3 [$5] }
-   | if '(' Expr ')' '{' Commands '}'     { IfNode $3 $6 }
-   | if '(' Expr ')' Command else Command { IfElseNode $3 [$5] [$7] }
+If : if '(' Expr ')' Command                                { IfNode $3 [$5] }
+   | if '(' Expr ')' '{' Commands '}'                       { IfNode $3 $6 }
+   | if '(' Expr ')' Command else Command                   { IfElseNode $3 [$5] [$7] }
    | if '(' Expr ')' '{' Commands '}' else '{' Commands '}' { IfElseNode $3 $6 $10 }
 
-While : while '(' Expr ')' Command        { WhileNode $3 [$5] }
-      | while '(' Expr ')' '{' Commands '}' { WhileNode $3 $6 }
+While : while '(' Expr ')' Command           { WhileNode $3 [$5] }
+      | while '(' Expr ')' '{' Commands '}'  { WhileNode $3 $6 }
 
 Type : int                              { IntType }
      | float                            { FloatType }
@@ -138,16 +139,15 @@ Expr : Expr '+' Expr                    { AddNode $1 $3 }
      | Expr '/' Expr                    { DivNode $1 $3 }
      | Expr '%' Expr                    { ModNode $1 $3 }
      | PostIncDecExp                    { $1 }
-     --| Expr "&&" Expr                   { AndNode $1 $3 }
-     --| Expr "||" Expr                   { OrNode $1 $3 }
-     --| Expr '>' Expr                    { GtNode $1 $3 }
-     --| Expr ">=" Expr                   { GeNode $1 $3 }
-     --| Expr '<' Expr                    { LtNode $1 $3 }
-     --| Expr "<=" Expr                   { LeNode $1 $3 }
-     --| Expr "==" Expr                   { EqNode $1 $3 }
-     --| Expr "!=" Expr                   { NeNode $1 $3 }
-     --| '!' Expr                         { NotNode $2 }
-     | '(' Expr ')'                     { $2 }
+     | Expr "&&" Expr                   { AndNode $1 $3 }
+     | Expr "||" Expr                   { OrNode $1 $3 }
+     | Expr '>' Expr                    { GtNode $1 $3 }
+     | Expr ">=" Expr                   { GeNode $1 $3 }
+     | Expr '<' Expr                    { LtNode $1 $3 }
+     | Expr "<=" Expr                   { LeNode $1 $3 }
+     | Expr "==" Expr                   { EqNode $1 $3 }
+     | Expr "!=" Expr                   { NeNode $1 $3 }
+     | '!' Expr                         { NotNode $2 }
      | Atomic                           { $1 }
 
 -- NOTAS:
@@ -159,17 +159,17 @@ Expr : Expr '+' Expr                    { AddNode $1 $3 }
 
 
 -- Booleanos: operadores lógicos e de comparação
-BoolExpr : Expr '>' Expr                { GtNode $1 $3 }
-         | Expr ">=" Expr               { GeNode $1 $3 }
-         | Expr '<' Expr                { LtNode $1 $3 }
-         | Expr "<=" Expr               { LeNode $1 $3 }
-         | Expr "==" Expr               { EqNode $1 $3 }
-         | Expr "!=" Expr               { NeNode $1 $3 }
-         | BoolExpr "&&" BoolExpr       { AndNode $1 $3 }
-         | BoolExpr "||" BoolExpr       { OrNode $1 $3 }
-         | '!' BoolExpr                 { NotNode $2 }
-         | '(' BoolExpr ')'             { $2 }
-         | AtomicBool                 { $1 }        -- Usa `AtomicBoolExp` para booleanos simples
+--BoolExpr : Expr '>' Expr                { GtNode $1 $3 }
+--         | Expr ">=" Expr               { GeNode $1 $3 }
+--         | Expr '<' Expr                { LtNode $1 $3 }
+--         | Expr "<=" Expr               { LeNode $1 $3 }
+--         | Expr "==" Expr               { EqNode $1 $3 }
+--         | Expr "!=" Expr               { NeNode $1 $3 }
+--         | BoolExpr "&&" BoolExpr       { AndNode $1 $3 }
+--         | BoolExpr "||" BoolExpr       { OrNode $1 $3 }
+--         | '!' BoolExpr                 { NotNode $2 }
+--         | '(' BoolExpr ')'             { $2 }
+--         | AtomicBool                   { $1 }        -- Usa `AtomicBoolExp` para booleanos simples
 
 -- Operações aritméticas
 --Aexp : --num                              { NumNode $1 }

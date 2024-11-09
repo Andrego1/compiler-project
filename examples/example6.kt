@@ -1,4 +1,7 @@
 fun main (){
+    var sucess = true
+    if (sucess) sucess = false else sucess = true
+    
     /*
     //sdiwbidbw
     nvfewoincvownocv

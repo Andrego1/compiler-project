@@ -68,6 +68,7 @@ tokens :-
     "{"                         { \_ -> LBRACE }
     "}"                         { \_ -> RBRACE }
     -- ","                         { \_ -> COMMA }
+    ";"                         {\_ -> SEMICOLON }
 
     -- Operadores
     "+"                         { \_ -> PLUS}
@@ -117,6 +118,7 @@ data Token = ID String       -- e.g. xy123
             | LBRACE         -- {
             | RBRACE         -- }
             -- | COMMA          -- ,
+            | SEMICOLON
 
             | IF             -- if
             | ELSE           -- else
