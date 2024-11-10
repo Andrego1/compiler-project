@@ -9,38 +9,46 @@ import Lexer
 
 %token
 
+-- Tokens para identificadores e valores
 id      {ID $$}
 num     {NUM $$}
 real    {REAL $$}
-str  {STR $$}
+str     {STR $$}
 
+-- Tokens para caracteres de pontuação
 '('     {LPAREN}
 ')'     {RPAREN}
 '{'     {LBRACE}
 '}'     {RBRACE}
---','     {COMMA}
 ';'     {SEMICOLON}
 
+-- Tokens para palavras-chave
 if      {IF}
 else    {ELSE}
 while   {WHILE}
 
+-- Tokens para tipos
 int     {INT}
 float   {FLOAT}
 boolean {BOOLEAN}
 string    {STRING}
 
+-- Tokens para declaração de função
 fun     {FUN}
 main    {MAIN}
+
+-- Tokens para declarações mutáveis e imutáveis
 val     {VAL}
 var     {VAR}
 
+-- Tokens para operadores aritméticos e lógicos
 '+'     {PLUS}
 '-'     {MINUS}
 '*'     {MULT}
 '/'     {DIV}
 '%'     {MOD}
 
+-- Tokens para operadores de comparação
 '>'     {G}
 ">="    {GEQ}
 '<'     {L}
@@ -51,9 +59,11 @@ var     {VAR}
 "||"    {OR}
 '!'     {NOT}
 
+-- Tokens para operadores de incremento e decremento
 "++"    {ICR}
 "--"    {DCR}
 
+-- Tokens para operadores de atribuição
 '='     {ATRIB}
 "+="    {ATRIB_PLUS}
 "-="    {ATRIB_MINUS}
@@ -61,15 +71,18 @@ var     {VAR}
 "/="    {ATRIB_DIV}
 "%="    {ATRIB_MOD}
 
+-- Tokens para valores booleanos
 true    {TRUE}
 false   {FALSE}
 
-
+-- Tokens para funções de entrada e saída
 readln  {READLN}
 print   {PRINT}
 
+-- Token para anotação de tipo
 ':'     {COLON}
 
+-- Precedência e a associatividade dos operadores
 %left "||"
 %left "&&"
 %nonassoc "==" "!="
@@ -89,6 +102,7 @@ Commands : Command ';' Commands         { $1 : $3 }
          | Command Commands             { $1 : $2 }
          | {- empty -}                  { [] }
 
+-- Define o que constitui um comando
 Command : Decl                          { $1 }
         | Assign                        { $1 }
         | Expr                          { $1 }
@@ -97,19 +111,23 @@ Command : Decl                          { $1 }
         | Print                         { $1 }
         | Readln                        { $1 }
 
+-- Comando para impressão
 Print : print '(' InitExp ')'           { PrintNode $3 }
 
+-- Comando para leitura da entrada
 Readln : readln '(' ')'                 { ReadlnNode }
 
-
+-- Estrutura condicional `if`
 If : if '(' Expr ')' Command                                { IfNode $3 [$5] }
    | if '(' Expr ')' '{' Commands '}'                       { IfNode $3 $6 }
    | if '(' Expr ')' Command else Command                   { IfElseNode $3 [$5] [$7] }
    | if '(' Expr ')' '{' Commands '}' else '{' Commands '}' { IfElseNode $3 $6 $10 }
 
+-- Estrutura de repetição `while`
 While : while '(' Expr ')' Command           { WhileNode $3 [$5] }
       | while '(' Expr ')' '{' Commands '}'  { WhileNode $3 $6 }
 
+-- Declaração de tipos para variáveis
 Type : int                              { IntType }
      | float                            { FloatType }
      | boolean                          { BoolType }
@@ -120,11 +138,14 @@ InitExp : Expr                          { $1 }  -- Para int e float
         | Sexp                          { $1 }  -- Para string
         | Readln                        { ReadlnNode } -- Leitura da entrada padrão
 
+
+-- Declaração de variáveis mutáveis (`var`) e imutáveis (`val`)
 Decl : var id '=' InitExp               { VarDecl (IdNode $2) $4 }
      | val id '=' InitExp               { ValDecl (IdNode $2) $4 }
      | var id ':' Type '=' InitExp      { VarDeclTyped (IdNode $2) $4 $6 }
      | val id ':' Type '=' InitExp      { ValDeclTyped (IdNode $2) $4 $6 }
 
+-- Estrutura de atribuição e operações compostas
 Assign : id '=' Expr                    { AssignNode $1 $3 }      -- Atribuição direta
        | id "+=" Expr                   { AddAssignNode $1 $3 }   -- Atribuição com soma
        | id "-=" Expr                   { SubAssignNode $1 $3 }   -- Atribuição com soma
@@ -132,6 +153,7 @@ Assign : id '=' Expr                    { AssignNode $1 $3 }      -- Atribuiçã
        | id "/=" Expr                   { DivAssignNode $1 $3 }   -- Atribuição com divisão
        | id "%=" Expr                   { ModAssignNode $1 $3 }   -- Atribuição com módulo
 
+-- Definição de expressões, incluindo operadores matemáticos e lógicos
 Expr : Expr '+' Expr                    { AddNode $1 $3 }
      | Expr '-' Expr                    { SubNode $1 $3 }
      | Expr '*' Expr                    { MultNode $1 $3 }
@@ -149,52 +171,12 @@ Expr : Expr '+' Expr                    { AddNode $1 $3 }
      | '!' Expr                         { NotNode $2 }
      | Atomic                           { $1 }
 
--- NOTAS:
--- poso tentar fazer com um duplicado de BoolExpr para que seja apenas usado em if e while
--- no exemplo b += true em que b é um int posso resolver agora ou deixar passar e dizer que é um erro de tipo
--- devo fazer ; ? e se devo fazer 
--- melhorar a AST !!!
--- melhorar if ?? um if com {} e um sem, este ultimo apenas um comando
-
-
--- Booleanos: operadores lógicos e de comparação
---BoolExpr : Expr '>' Expr                { GtNode $1 $3 }
---         | Expr ">=" Expr               { GeNode $1 $3 }
---         | Expr '<' Expr                { LtNode $1 $3 }
---         | Expr "<=" Expr               { LeNode $1 $3 }
---         | Expr "==" Expr               { EqNode $1 $3 }
---         | Expr "!=" Expr               { NeNode $1 $3 }
---         | BoolExpr "&&" BoolExpr       { AndNode $1 $3 }
---         | BoolExpr "||" BoolExpr       { OrNode $1 $3 }
---         | '!' BoolExpr                 { NotNode $2 }
---         | '(' BoolExpr ')'             { $2 }
---         | AtomicBool                   { $1 }        -- Usa `AtomicBoolExp` para booleanos simples
-
--- Operações aritméticas
---Aexp : --num                              { NumNode $1 }
---      Aexp '+' Aexp                     { AddNode $1 $3 }
---     | Aexp '-' Aexp                     { SubNode $1 $3 }
---     | Aexp '*' Aexp                     { MultNode $1 $3 }
---     | Aexp '/' Aexp                     { DivNode $1 $3 }
---     | Aexp '%' Aexp                     { ModNode $1 $3 }
---     | PostIncDecExp                     { $1 }
---     | AtomicAexp                        { $1 }
 
 -- Pós-incremento e pós-decremento
 PostIncDecExp : id "++"                 { IncrNode (IdNode $1) }
               | id "--"                 { DecrNode (IdNode $1) }
 
--- Expressão booleana simples (literais booleanos e identificadores)
---AtomicBool : true                     { BoolNode True }
---              | false                    { BoolNode False }
---              | id                       { IdNode $1 }
---              | '(' BoolExpr ')'         { $2 }
-
--- Expressão aritmética simples (números e identificadores)
---AtomicAexp : num                         { NumNode $1 }
---           | id                          { IdNode $1 }
---           | '(' Aexp ')'                { $2 }
-
+-- Definição de valores atômicos
 Atomic : id                             {IdNode $1}
        | num                            {NumNode $1}
        | real                           {RealNode $1}
@@ -202,11 +184,12 @@ Atomic : id                             {IdNode $1}
        | false                          {BoolNode False}
        | '(' Expr ')'                     { $2 }
 
+-- Expressão para string
 Sexp : str                              { StringNode $1 }
 
 {
--- Nós da AST
-data Exp = ProgramNode [Exp]             -- Novo nó para encapsular a lista principal de comandos
+-- Estrutura da AST (Árvore Sintática Abstrata) com tipos e nós de operações
+data Exp = ProgramNode [Exp]             -- Nó para encapsular a lista principal de comandos
          | NumNode Int
          | RealNode Float 
          | StringNode String
@@ -250,5 +233,4 @@ data Type = IntType | FloatType | BoolType | StringType deriving (Show, Eq)
 parseError :: [Token] -> a
 parseError toks = error $ "Erro de parsing: " ++ show toks
 }
-
 
