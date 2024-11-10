@@ -7,6 +7,6 @@ main :: IO ()
 main = do
   txt <- getContents
   print("Tokens: ")
-  print(alexScanTokens txt) -- ver se esta tudo bem
+  print(alexScanTokens txt)
   print("AST: ")  
   print(parse $ alexScanTokens txt)
