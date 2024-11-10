@@ -1715,8 +1715,8 @@ parse tks = happyRunIdentity happySomeParser where
 happySeq = happyDontSeq
 
 
--- Nós da AST
-data Exp = ProgramNode [Exp]             -- Novo nó para encapsular a lista principal de comandos
+-- Estrutura da AST (Árvore Sintática Abstrata) com tipos e nós de operações
+data Exp = ProgramNode [Exp]             -- Nó para encapsular a lista principal de comandos
          | NumNode Int
          | RealNode Float 
          | StringNode String

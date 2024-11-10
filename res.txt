@@ -1,4 +1,4 @@
 "Tokens: "
-[FUN,MAIN,LPAREN,RPAREN,LBRACE,VAR,ID "i",ATRIB,NUM 0,WHILE,LPAREN,ID "i",L,NUM 10,RPAREN,LBRACE,PRINT,LPAREN,ID "i",RPAREN,ID "i",ICR,RBRACE,RBRACE]
+[FUN,MAIN,LPAREN,RPAREN,LBRACE,VAL,ID "a",ATRIB,NUM 2,VAL,ID "b",COLON,INT,ATRIB,NUM 3,VAR,ID "x",ATRIB,NUM 1,VAR,ID "z",COLON,FLOAT,ATRIB,REAL 2.1,PRINT,LPAREN,STR "Exemplos: $a $b $x $z",RPAREN,RBRACE]
 "AST: "
-ProgramNode [VarDecl (IdNode "i") (NumNode 0),WhileNode (LtNode (IdNode "i") (NumNode 10)) [PrintNode (IdNode "i"),IncrNode (IdNode "i")]]
+ProgramNode [ValDecl (IdNode "a") (NumNode 2),ValDeclTyped (IdNode "b") IntType (NumNode 3),VarDecl (IdNode "x") (NumNode 1),VarDeclTyped (IdNode "z") FloatType (RealNode 2.1),PrintNode (StringNode "Exemplos: $a $b $x $z")]
