@@ -1,4 +1,7 @@
--- Lexer para projeto Compiladores (subconjunto de kotlin)
+-- Lexer para projeto Compiladores (subconjunto de Kotlin)
+-- Este analisador léxico (lexer) é configurado para processar um subconjunto
+-- da linguagem Kotlin, reconhecendo tokens e produzindo uma lista de tokens 
+-- para posterior análise na fase de parsing.
 
 {
 module Lexer where
@@ -8,7 +11,7 @@ module Lexer where
 
 -- Definimos macros para simplificar as expressões regulares
 $digit   = 0-9            -- dígitos
-$alpha   = [_a-zA-Z]      -- caracteres alfabéticos
+$alpha   = [_a-zA-Z]      -- caracteres alfabéticos, incluindo sublinhado (_)
 
 -- Regras de correspondência para tokens
 tokens :-
@@ -51,10 +54,6 @@ tokens :-
     -- Strings -- 
     \"([^\"]|\\.)*\"            { \s -> STR $ replaceEscapedChars (init (tail s)) }
 
-    -- Char pode nao ser necessario
-    --"'"(~\')"'"                     {\c -> CHAR c}
-    -- duvida tambem que tipos sao necessarios
-
 
     -- Comentários de linha única (//...)
     "//".*                      ;
@@ -67,7 +66,6 @@ tokens :-
     ")"                         { \_ -> RPAREN }
     "{"                         { \_ -> LBRACE }
     "}"                         { \_ -> RBRACE }
-    -- ","                         { \_ -> COMMA }
     ";"                         {\_ -> SEMICOLON }
 
     -- Operadores
@@ -111,13 +109,11 @@ data Token = ID String       -- e.g. xy123
             | NUM Int        -- e.g. 123
             | REAL Float     -- e.g. 123.45
             | STR String  -- e.g "andre"
-            -- | CHAR Char      -- e.g 'a'
             
             | LPAREN         -- (
             | RPAREN         -- )
             | LBRACE         -- {
             | RBRACE         -- }
-            -- | COMMA          -- ,
             | SEMICOLON
 
             | IF             -- if
@@ -155,23 +151,23 @@ data Token = ID String       -- e.g. xy123
             | ICR            -- ++
 
             | ATRIB          -- =
-            | ATRIB_PLUS
-            | ATRIB_MINUS
-            | ATRIB_MULT
-            | ATRIB_DIV
-            | ATRIB_MOD
+            | ATRIB_PLUS     -- +=
+            | ATRIB_MINUS    -- -=
+            | ATRIB_MULT     -- *=
+            | ATRIB_DIV      -- /=
+            | ATRIB_MOD      -- %=
 
-            | TRUE
-            | FALSE
+            | TRUE           -- valor booleano true
+            | FALSE          -- valor booleano false
 
 
-            | READLN
-            | PRINT
+            | READLN         -- função readln()
+            | PRINT          -- função print()
 
             | COLON           -- :
             deriving (Show, Eq)    
 
--- lidar com \n e etc...
+-- Função para substituir caracteres escapados em strings
 replaceEscapedChars :: String -> String
 replaceEscapedChars [] = []
 replaceEscapedChars ('\\':'n':xs)  = '\n' : replaceEscapedChars xs    -- nova linha
