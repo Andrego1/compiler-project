@@ -46,10 +46,10 @@ tokens :-
     $alpha($alpha|$digit)*      { \s -> ID s }
 
     -- Números inteiros
-    "-"?$digit+                 { \s -> NUM (read s) } -- "-"? para suportar numeros negativos
+    $digit+                 { \s -> NUM (read s) } -- "-"? para suportar numeros negativos
 
     -- Números reais
-    "-"?$digit+"."$digit+       { \s -> REAL (read s) } -- "-"? para suportar numeros negativos
+    $digit+"."$digit+       { \s -> REAL (read s) } -- "-"? para suportar numeros negativos
 
     -- Strings -- 
     \"([^\"]|\\.)*\"            { \s -> STR $ replaceEscapedChars (init (tail s)) }

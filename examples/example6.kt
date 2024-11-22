@@ -17,5 +17,12 @@ fun main (){
     } else {
         t = true
     }
+
+    var k = 2
+    if (k >= 0) k++
+    else {
+        print("hello")
+        print("goodbye")
+    }
     print(t)
 }

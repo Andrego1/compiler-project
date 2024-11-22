@@ -118,10 +118,13 @@ Print : print '(' InitExp ')'           { PrintNode $3 }
 Readln : readln '(' ')'                 { ReadlnNode }
 
 -- Estrutura condicional `if`
-If : if '(' Expr ')' Command                                { IfNode $3 [$5] }
-   | if '(' Expr ')' '{' Commands '}'                       { IfNode $3 $6 }
-   | if '(' Expr ')' Command else Command                   { IfElseNode $3 [$5] [$7] }
-   | if '(' Expr ')' '{' Commands '}' else '{' Commands '}' { IfElseNode $3 $6 $10 }
+If : if '(' Expr ')' Aux_if                                { IfNode $3 $5 }
+   --| if '(' Expr ')' '{' Commands '}'                       { IfNode $3 $6 }
+   | if '(' Expr ')' Aux_if else Aux_if                   { IfElseNode $3 $5 $7 }
+   --| if '(' Expr ')' '{' Commands '}' else '{' Commands '}' { IfElseNode $3 $6 $10 }
+
+Aux_if : Command                   { [$1] }
+       | '{' Commands '}'          { $2 }
 
 -- Estrutura de repetição `while`
 While : while '(' Expr ')' Command           { WhileNode $3 [$5] }

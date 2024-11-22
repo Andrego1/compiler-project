@@ -1,4 +1,6 @@
 fun main(){
+    val m = -1
+    -(1+2)*2
     //print(Hello world !) gives error its ok
     val x: Int = 2
     val y = 3
