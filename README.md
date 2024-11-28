@@ -1,11 +1,12 @@
-Parte 1 de projeto de Compiladores
+# Projeto de Compiladores
+--------------------------
 
-Correcoes a fazer:
-    Ter o unary_minus para permitir -(1+2)+2 e deixar de permitir numeros negativos na expressão regular, unary_minus TOKEN
+## Correcoes a fazer:
+    - DONE Ter o unary_minus para permitir -(1+2)+2 e deixar de permitir numeros negativos na expressão regular, unary_minus TOKEN
 
-    DONE - No If_then_else deixar de ter a partir do then e ter um nao-terminal no qual temos uma parte com {} ou sem 
+    - DONE - No If_then_else deixar de ter a partir do then e ter um nao-terminal no qual temos uma parte com {} ou sem 
 
-    Na String que n é necessario podemos remover a funcao auxiliar e apenas fazer um println para permitir \n
-    (ter muitas coisas complica o que temos de fazer em parte2)
+    - Na String que n é necessario podemos remover a funcao auxiliar e apenas fazer um println para permitir \n e usear apenas no print
+    (ter muitas coisas complica o que temos de fazer em parte2) VER APENAS DEPPOIS DE TUDO, DEPOIS PODIAMOS FAZER
 
-    penso que n falta nada para corrigir (perguntar ao prof)
+    - penso que n falta nada para corrigir (perguntar ao prof)

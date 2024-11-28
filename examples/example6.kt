@@ -19,7 +19,8 @@ fun main (){
     }
 
     var k = 2
-    if (k >= 0) k++
+    if (k >= 0) 
+    k++
     else {
         print("hello")
         print("goodbye")

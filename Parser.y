@@ -91,6 +91,7 @@ print   {PRINT}
 %left '*' '/' '%'
 %right '!'
 %right "++" "--"
+%left NEG
 
 %% 
 
@@ -105,11 +106,11 @@ Commands : Command ';' Commands         { $1 : $3 }
 -- Define o que constitui um comando
 Command : Decl                          { $1 }
         | Assign                        { $1 }
-        | Expr                          { $1 }
+        --| Expr                          { $1 }
         | If                            { $1 }
         | While                         { $1 }
         | Print                         { $1 }
-        | Readln                        { $1 }
+        --| Readln                        { $1 }
 
 -- Comando para impressão
 Print : print '(' InitExp ')'           { PrintNode $3 }
@@ -139,7 +140,7 @@ Type : int                              { IntType }
 -- Inicialização permitidas
 InitExp : Expr                          { $1 }  -- Para int e float
         | Sexp                          { $1 }  -- Para string
-        | Readln                        { ReadlnNode } -- Leitura da entrada padrão
+        --| Readln                        { ReadlnNode } -- Leitura da entrada padrão
 
 
 -- Declaração de variáveis mutáveis (`var`) e imutáveis (`val`)
@@ -155,6 +156,7 @@ Assign : id '=' Expr                    { AssignNode $1 $3 }      -- Atribuiçã
        | id "*=" Expr                   { MultAssignNode $1 $3 }  -- Atribuição com multiplicação
        | id "/=" Expr                   { DivAssignNode $1 $3 }   -- Atribuição com divisão
        | id "%=" Expr                   { ModAssignNode $1 $3 }   -- Atribuição com módulo
+       | PostIncDecExp                  { $1 }
 
 -- Definição de expressões, incluindo operadores matemáticos e lógicos
 Expr : Expr '+' Expr                    { AddNode $1 $3 }
@@ -162,7 +164,7 @@ Expr : Expr '+' Expr                    { AddNode $1 $3 }
      | Expr '*' Expr                    { MultNode $1 $3 }
      | Expr '/' Expr                    { DivNode $1 $3 }
      | Expr '%' Expr                    { ModNode $1 $3 }
-     | PostIncDecExp                    { $1 }
+     --| PostIncDecExp                    { $1 }
      | Expr "&&" Expr                   { AndNode $1 $3 }
      | Expr "||" Expr                   { OrNode $1 $3 }
      | Expr '>' Expr                    { GtNode $1 $3 }
@@ -172,7 +174,9 @@ Expr : Expr '+' Expr                    { AddNode $1 $3 }
      | Expr "==" Expr                   { EqNode $1 $3 }
      | Expr "!=" Expr                   { NeNode $1 $3 }
      | '!' Expr                         { NotNode $2 }
+     | '-' Expr %prec NEG               { $2 }
      | Atomic                           { $1 }
+     | Readln                           { $1 }
 
 
 -- Pós-incremento e pós-decremento
