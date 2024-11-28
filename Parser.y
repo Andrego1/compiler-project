@@ -234,8 +234,7 @@ data Exp = ProgramNode [Exp]             -- Nó para encapsular a lista principa
          | DivAssignNode String Exp
          | ModAssignNode String Exp
          deriving (Show, Eq)
-
-data Type = IntType | FloatType | BoolType | StringType deriving (Show, Eq)
+data Type = IntType | FloatType | BoolType | StringType deriving (Show, Eq) --TODO deicar se ter string por enquanto
 
 parseError :: [Token] -> a
 parseError toks = error $ "Erro de parsing: " ++ show toks

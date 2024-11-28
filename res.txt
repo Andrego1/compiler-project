@@ -1,4 +1,4 @@
 "Tokens: "
-[FUN,MAIN,LPAREN,RPAREN,LBRACE,VAL,ID "a",ATRIB,NUM 2,VAL,ID "b",COLON,INT,ATRIB,NUM 3,VAL,ID "k",COLON,BOOLEAN,ATRIB,NUM 1,VAR,ID "x",ATRIB,NUM 1,VAR,ID "z",COLON,FLOAT,ATRIB,REAL 2.1,PRINT,LPAREN,STR "Exemplos: $a $b $x $z",RPAREN,RBRACE]
+[FUN,MAIN,LPAREN,RPAREN,LBRACE,VAL,ID "a",ATRIB,NUM 2,VAL,ID "b",COLON,INT,ATRIB,NUM 3,VAL,ID "k",COLON,BOOLEAN,ATRIB,NUM 1,VAR,ID "x",ATRIB,NUM 1,VAR,ID "z",COLON,FLOAT,ATRIB,REAL 2.1,ID "x",ATRIB,ID "x",PLUS,NUM 2,ID "z",ATRIB_PLUS,NUM 1,PRINT,LPAREN,STR "Exemplos: $a $b $x $z",RPAREN,RBRACE]
 "AST: "
-ProgramNode [ValDecl (IdNode "a") (NumNode 2),ValDeclTyped (IdNode "b") IntType (NumNode 3),ValDeclTyped (IdNode "k") BoolType (NumNode 1),VarDecl (IdNode "x") (NumNode 1),VarDeclTyped (IdNode "z") FloatType (RealNode 2.1),PrintNode (StringNode "Exemplos: $a $b $x $z")]
+ProgramNode [ValDecl (IdNode "a") (NumNode 2),ValDeclTyped (IdNode "b") IntType (NumNode 3),ValDeclTyped (IdNode "k") BoolType (NumNode 1),VarDecl (IdNode "x") (NumNode 1),VarDeclTyped (IdNode "z") FloatType (RealNode 2.1),AssignNode "x" (AddNode (IdNode "x") (NumNode 2)),AddAssignNode "z" (NumNode 1),PrintNode (StringNode "Exemplos: $a $b $x $z")]

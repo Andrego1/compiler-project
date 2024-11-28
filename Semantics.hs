@@ -1,109 +1,143 @@
 module Semantics where
 
-import Data.Map as Map ( lookup, Map )
+import qualified Data.Map as Map
 import Parser (Exp(..), Type(..)) -- para obter a AST(Exp) e tipos(Type)
 
 type Ident = String -- para identificadores
 
-type TypeEnv = Map Ident Type -- ambiente (tabela de simbolos), um bool para ver se é mutavel?
+type TypeEnv = Map.Map Ident (Type, Bool) -- ambiente (tabela de simbolos), um bool para ver se é mutavel true é senão false
 
--- tenta encontrar a variavel e retorna o seu tipo -- NAO USADO
---myLookup :: Ident -> TypeEnv -> Type
---myLookup x env = 
+-- função auxiliar usado para verificação de tipos de expressões aritméticas
+checkArithmetic :: TypeEnv -> Exp -> Exp -> String -> Type
+checkArithmetic env e1 e2 op =
+    let t1 = checkExpr env e1
+        t2 = checkExpr env e2
+    in if t1 == IntType && t2 == IntType then IntType
+       else if t1 == FloatType && t2 == FloatType then FloatType
+       else error $ "Error: type error in '" ++ op ++ "': Espected (Int,Int), but got (" ++ show t1 ++ ", " ++ show t2 ++ ")"
 
+-- função auxiliar usado para verificação de tipos de expressões boleanas exceto comparação
+checkComparison :: TypeEnv -> Exp -> Exp -> String -> Type
+checkComparison env e1 e2 bop =
+    let t1 = checkExpr env e1
+        t2 = checkExpr env e2
+    in if t1 == BoolType && t2 == BoolType then BoolType
+       else error $ "type error in " ++ bop --TODO melhorar menssagem
+
+--função auxiliar usado para verificação de tipos de comparações
+checkEquality :: TypeEnv -> Exp -> Exp -> String -> Type
+checkEquality env e1 e2 bop =
+    let t1 = checkExpr env e1
+        t2 = checkExpr env e2
+    in if t1 == t2 then BoolType
+       else error $ "type error in " ++ bop --TODO melhorar menssagem
+
+-- verifica o tipos das expressões aritméticas e boleanas
 checkExpr :: TypeEnv -> Exp -> Type
-checkExpr env (NumNode n) = IntType
-checkExpr env (IdNode x)  = case Map.lookup x env of
-    Nothing -> error "undeclered variable"
-    Just t  -> t
--- acho que para as outras operações (+,-,*,/,%) é o mesmo apenas muda a menssagem de erro
-checkExpr env (AddNode e1 e2 )
-    = let t1 = checkExpr env e1
-          t2 = checkExpr env e2
-        in if t1==IntType && t2==IntType then IntType
-           else error "type error in +"
-checkExpr env (SubNode e1 e2 )
-    = let t1 = checkExpr env e1
-          t2 = checkExpr env e2
-        in if t1==IntType && t2==IntType then IntType
-           else error "type error in -"
-checkExpr env (MultNode e1 e2 )
-    = let t1 = checkExpr env e1
-          t2 = checkExpr env e2
-        in if t1==IntType && t2==IntType then IntType
-           else error "type error in *"
-checkExpr env (DivNode e1 e2 )
-    = let t1 = checkExpr env e1
-          t2 = checkExpr env e2
-        in if t1==IntType && t2==IntType then IntType
-           else error "type error in /"
-checkExpr env (ModNode e1 e2 )
-    = let t1 = checkExpr env e1
-          t2 = checkExpr env e2
-        in if t1==IntType && t2==IntType then IntType
-           else error "type error in %"
--- acho que para (<=,>=,>),exceto error, é o mesmo mas para == pode ser IntBool em t1 e t2 também
-checkExpr env (LtNode e1 e2)
-    = let t1 = checkExpr env e1
-          t2 = checkExpr env e2
-        in if t1==IntType && t2==IntType then BoolType
-           else error "type error in <"
-checkExpr env (GtNode e1 e2)
-    = let t1 = checkExpr env e1
-          t2 = checkExpr env e2
-        in if t1==IntType && t2==IntType then BoolType
-           else error "type error in >"
-checkExpr env (LeNode e1 e2)
-    = let t1 = checkExpr env e1
-          t2 = checkExpr env e2
-        in if t1==IntType && t2==IntType then BoolType
-           else error "type error in <="
-checkExpr env (GeNode e1 e2)
-    = let t1 = checkExpr env e1
-          t2 = checkExpr env e2
-        in if t1==IntType && t2==IntType then BoolType
-           else error "type error in >="
-checkExpr env (EqNode e1 e2)
-    = let t1 = checkExpr env e1
-          t2 = checkExpr env e2
-        in if (t1==IntType && t2==IntType) || (t1==BoolType && t2==BoolType) then BoolType
-           else error "type error in =="
+checkExpr env (IdNode x)   = case Map.lookup x env of
+    Nothing -> error $ "Error: Undeclered variable " ++ x ++ " in envirment: " ++ show (Map.keys env)
+    Just (t,b)  -> t
+checkExpr env (RealNode r) = FloatType
+checkExpr env (BoolNode b) = BoolType
+checkExpr env (NumNode n)  = IntType
+-- para as outras operações (+,-,*,/,%) é o mesmo apenas muda a menssagem de erro
+checkExpr env (AddNode e1 e2)  = checkArithmetic env e1 e2 "+"
+checkExpr env (SubNode e1 e2)  = checkArithmetic env e1 e2 "-"
+checkExpr env (MultNode e1 e2) = checkArithmetic env e1 e2 "*"
+checkExpr env (DivNode e1 e2)  = checkArithmetic env e1 e2 "/"
+checkExpr env (ModNode e1 e2)  = checkArithmetic env e1 e2 "%"
+-- para (<=,>=,>),exceto error, é o mesmo mas para == e != pode ser IntBool em t1 e t2 também
+checkExpr env (LtNode e1 e2) = checkComparison env e1 e2 "<"
+checkExpr env (GtNode e1 e2) = checkComparison env e1 e2 ">"
+checkExpr env (LeNode e1 e2) = checkComparison env e1 e2 "<="
+checkExpr env (GeNode e1 e2) = checkComparison env e1 e2 ">="
+checkExpr env (EqNode e1 e2) = checkEquality   env e1 e2 "=="
+checkExpr env (NeNode e1 e2) = checkEquality   env e1 e2 "!="
 
---type Decl = (Ident, Type) -- para as declaracoes de variaveis
+validateExpr :: Type -> Exp -> Bool
+validateExpr IntType (NumNode _)  = True
+validateExpr FloatType (RealNode _) = True
+validateExpr BoolType (BoolNode _) = True
+validateExpr _ _ = False
 
+inferType :: Exp -> Type
+inferType (NumNode _)  = IntType
+inferType (RealNode _) = FloatType
+inferType (BoolNode _) = BoolType
+inferType expr         = error $ "Error: It was not possible to infer the type of the expression: " ++ show expr
+
+-- quando recebe 
+extendEnv :: TypeEnv -> [Exp] -> TypeEnv
+extendEnv env [] = env
+extendEnv env (decl:rest) = case decl of
+    VarDeclTyped (IdNode id) typ expr -> 
+        if validateExpr typ expr
+        then extendEnv (Map.insert id (typ, True) env) rest
+        else error $ "Error in variable declaration '" ++ id ++ "': Type and value do not correspond (" ++ show typ ++ ", " ++ show expr ++ ")"
+    ValDeclTyped (IdNode id) typ expr -> 
+        if validateExpr typ expr
+        then extendEnv (Map.insert id (typ, False) env) rest
+        else error $ "Error in value declaration '" ++ id ++ "':  Type and value do not correspond (" ++ show typ ++ ", " ++ show expr ++ ")"
+    VarDecl (IdNode id) expr -> 
+        let inferredType = inferType expr
+        in extendEnv (Map.insert id (inferredType, True) env) rest
+    ValDecl (IdNode id) expr -> 
+        let inferredType = inferType expr
+        in extendEnv (Map.insert id (inferredType, False) env) rest
+    _ -> error $ "Error: Declaration invalid or not suported: " ++ show decl
+
+{-
+-- acho que nao esta muito bem! VER MELHOR! DONE - ACIMA ESTA MODULARIZADO
+extendEnv :: TypeEnv -> [Exp] -> TypeEnv
+extendEnv env []     = env
+extendEnv env ((VarDeclTyped (IdNode id) IntType (NumNode val)):rest)    = extendEnv (Map.insert id (IntType, True) env) rest
+extendEnv env ((VarDeclTyped (IdNode id) FloatType (RealNode val)):rest) = extendEnv (Map.insert id (FloatType, True) env) rest
+extendEnv env ((VarDeclTyped (IdNode id) BoolType (BoolNode val)):rest)  = extendEnv (Map.insert id (BoolType, True) env) rest
+extendEnv env ((ValDeclTyped (IdNode id) IntType (NumNode val)):rest)    = extendEnv (Map.insert id (IntType, False) env) rest
+extendEnv env ((ValDeclTyped (IdNode id) FloatType (RealNode val)):rest) = extendEnv (Map.insert id (FloatType, False) env) rest
+extendEnv env ((ValDeclTyped (IdNode id) BoolType (BoolNode val)):rest)  = extendEnv (Map.insert id (BoolType, False) env) rest
+extendEnv env ((VarDecl (IdNode id) (NumNode val)):rest)  = extendEnv (Map.insert id (IntType, True) env) rest
+extendEnv env ((VarDecl (IdNode id) (RealNode val)):rest) = extendEnv (Map.insert id (FloatType, True) env) rest
+extendEnv env ((VarDecl (IdNode id) (BoolNode val)):rest) = extendEnv (Map.insert id (BoolType, True) env) rest
+extendEnv env ((ValDecl (IdNode id) (NumNode val)):rest)  = extendEnv (Map.insert id (IntType, False) env) rest
+extendEnv env ((ValDecl (IdNode id) (RealNode val)):rest) = extendEnv (Map.insert id (FloatType, False) env) rest
+extendEnv env ((ValDecl (IdNode id) (BoolNode val)):rest) = extendEnv (Map.insert id (BoolType, False) env) rest
+-- nao fazer strings como expressoes ate termos tudo feito APENAS SE HOUVER TEMPO
+extendEnv env _ = error "declaration error" --TODO melhorar menssagem
+-}
 -- verificar varias expressoes seguidas
 checkStms :: TypeEnv -> [Exp] -> Bool
 checkStms env = foldr ((&&) . checkStm env) True
 
--- acho que nao esta bem! VER MELHOR
-extendEnv :: TypeEnv -> [Exp] -> TypeEnv
-extendEnv env []     = env
-extendEnv env ((VarDeclTyped (IdNode id) t exp):rest) = extendEnv (Map.insert id t) rest
+checkAssigns :: TypeEnv -> Ident -> Exp -> Bool
+checkAssigns env id expr = case Map.lookup id env of
+    Just (typ, bool) -> (checkExpr env expr == typ && bool) || error "type error in assign"
+    Nothing -> error "undeclared variable"
 
-checkStm :: TypeEnv -> Exp -> Bool -- nao tenho a certeza sobre os tipos
-checkStm env (AssignNode id expr) -- muito repetitivo !!!
+checkStm :: TypeEnv -> Exp -> Bool -- ACABAR !!! 
+checkStm env (AssignNode id expr) -- muito repetitivo !!! ainda falta retratar os ++ e --
     = case Map.lookup id env of
-        Just typ -> (checkExpr env expr == typ) || error "type error in assign"
+        Just (typ, bool) -> (checkExpr env expr == typ && bool) || error "type error in assign"
         Nothing -> error "undeclared variable"
-checkStm env (AddAssignNode id expr) 
+checkStm env (AddAssignNode id expr)
     = case Map.lookup id env of
-        Just typ -> (checkExpr env expr == typ) || error "type error in assign"
+        Just (typ, bool) -> (checkExpr env expr == typ && bool) || error "type error in assign"
         Nothing -> error "undeclared variable"
-checkStm env (SubAssignNode id expr) 
+checkStm env (SubAssignNode id expr)
     = case Map.lookup id env of
-        Just typ -> (checkExpr env expr == typ) || error "type error in assign"
+        Just (typ, bool) -> (checkExpr env expr == typ && bool) || error "type error in assign"
         Nothing -> error "undeclared variable"
-checkStm env (MultAssignNode id expr) 
+checkStm env (MultAssignNode id expr)
     = case Map.lookup id env of
-        Just typ -> (checkExpr env expr == typ) || error "type error in assign"
+        Just (typ, bool) -> (checkExpr env expr == typ && bool) || error "type error in assign"
         Nothing -> error "undeclared variable"
-checkStm env (DivAssignNode id expr) 
+checkStm env (DivAssignNode id expr)
     = case Map.lookup id env of
-        Just typ -> (checkExpr env expr == typ) || error "type error in assign"
+        Just (typ, bool) -> (checkExpr env expr == typ && bool) || error "type error in assign"
         Nothing -> error "undeclared variable"
 checkStm env (ModAssignNode id expr)
     = case Map.lookup id env of
-        Just typ -> (checkExpr env expr == typ) || error "type error in assign"
+        Just (typ, bool) -> (checkExpr env expr == typ && bool) || error "type error in assign"
         Nothing -> error "undeclared variable"
 
 checkStm env (IfNode cond stm1)
