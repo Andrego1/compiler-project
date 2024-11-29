@@ -10,7 +10,8 @@
     (ter muitas coisas complica o que temos de fazer em parte2) VER APENAS DEPPOIS DE TUDO, DEPOIS PODIAMOS FAZER
 
 ## 2º Parte
-    - análise semantica (verificação de tipos, symbol table, ...)
+    - DONE? - análise semantica (verificação de tipos, symbol table, ...)
+    verificar se está tudo bem, mais testes e assim
 
     - geração de código intermédio (funções estão defenidas em aula 10)
 
