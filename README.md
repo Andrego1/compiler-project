@@ -15,3 +15,7 @@
     - geração de código intermédio (funções estão defenidas em aula 10)
 
     - geração de código mips (aulas 11 e 12)
+
+    - as variaveis apenas serão declaradas globalmente, não existem abito local nem global
+
+    - EM GERAL AINDA NAO TRATEI DO READLN, vamos deixar para o fim pois tenho duvidas

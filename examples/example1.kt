@@ -5,6 +5,6 @@ fun main (){
     var x = 1
     var z: Float = 2.1
     x = x + 2
-    z += 1
-    print("Exemplos: $a $b $x $z")
+    z += 1.0
+    print(x)
 }
