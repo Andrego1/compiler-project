@@ -66,22 +66,22 @@ inferType (RealNode _) = FloatType
 inferType (BoolNode _) = BoolType
 inferType expr         = error $ "Error: It was not possible to infer the type of the expression: " ++ show expr
 
--- quando recebe 
+-- DE MOMENTO APENAS PARA LISTA DE DECLARAÇÕES não sei se está muito correto (apenas segui e modularizei o que estava no ppt9)
 extendEnv :: TypeEnv -> [Exp] -> TypeEnv
 extendEnv env [] = env
 extendEnv env (decl:rest) = case decl of
-    VarDeclTyped (IdNode id) typ expr -> 
+    VarDeclTyped (IdNode id) typ expr ->
         if validateExpr typ expr
         then extendEnv (Map.insert id (typ, True) env) rest
         else error $ "Error in variable declaration '" ++ id ++ "': Type and value do not correspond (" ++ show typ ++ ", " ++ show expr ++ ")"
-    ValDeclTyped (IdNode id) typ expr -> 
+    ValDeclTyped (IdNode id) typ expr ->
         if validateExpr typ expr
         then extendEnv (Map.insert id (typ, False) env) rest
         else error $ "Error in value declaration '" ++ id ++ "':  Type and value do not correspond (" ++ show typ ++ ", " ++ show expr ++ ")"
-    VarDecl (IdNode id) expr -> 
+    VarDecl (IdNode id) expr ->
         let inferredType = inferType expr
         in extendEnv (Map.insert id (inferredType, True) env) rest
-    ValDecl (IdNode id) expr -> 
+    ValDecl (IdNode id) expr ->
         let inferredType = inferType expr
         in extendEnv (Map.insert id (inferredType, False) env) rest
     _ -> error $ "Error: Declaration invalid or not suported: " ++ show decl
@@ -109,37 +109,25 @@ extendEnv env _ = error "declaration error" --TODO melhorar menssagem
 checkStms :: TypeEnv -> [Exp] -> Bool
 checkStms env = foldr ((&&) . checkStm env) True
 
-checkAssigns :: TypeEnv -> Ident -> Exp -> Bool
-checkAssigns env id expr = case Map.lookup id env of
-    Just (typ, bool) -> (checkExpr env expr == typ && bool) || error "type error in assign"
-    Nothing -> error "undeclared variable"
+checkAssigns :: TypeEnv -> Ident -> Exp -> String -> Bool
+checkAssigns env id expr assign = case Map.lookup id env of
+    Just (typ, bool) -> (checkExpr env expr == typ && bool) || error ("Error: type error in assign: '" ++ assign ++ "' with id: " ++ id)
+    Nothing -> error "Error: Undeclared variable"
 
+-- (agora o ++ e -- não são expressoes mas commandos/statements)
 checkStm :: TypeEnv -> Exp -> Bool -- ACABAR !!! 
-checkStm env (AssignNode id expr) -- muito repetitivo !!! ainda falta retratar os ++ e --
-    = case Map.lookup id env of
-        Just (typ, bool) -> (checkExpr env expr == typ && bool) || error "type error in assign"
-        Nothing -> error "undeclared variable"
-checkStm env (AddAssignNode id expr)
-    = case Map.lookup id env of
-        Just (typ, bool) -> (checkExpr env expr == typ && bool) || error "type error in assign"
-        Nothing -> error "undeclared variable"
-checkStm env (SubAssignNode id expr)
-    = case Map.lookup id env of
-        Just (typ, bool) -> (checkExpr env expr == typ && bool) || error "type error in assign"
-        Nothing -> error "undeclared variable"
-checkStm env (MultAssignNode id expr)
-    = case Map.lookup id env of
-        Just (typ, bool) -> (checkExpr env expr == typ && bool) || error "type error in assign"
-        Nothing -> error "undeclared variable"
-checkStm env (DivAssignNode id expr)
-    = case Map.lookup id env of
-        Just (typ, bool) -> (checkExpr env expr == typ && bool) || error "type error in assign"
-        Nothing -> error "undeclared variable"
-checkStm env (ModAssignNode id expr)
-    = case Map.lookup id env of
-        Just (typ, bool) -> (checkExpr env expr == typ && bool) || error "type error in assign"
-        Nothing -> error "undeclared variable"
-
+checkStm env (AssignNode id expr)    = checkAssigns env id expr "="
+checkStm env (AddAssignNode id expr) = checkAssigns env id expr "+="
+checkStm env (SubAssignNode id expr) = checkAssigns env id expr "-="
+checkStm env (MultAssignNode id expr)= checkAssigns env id expr "*="
+checkStm env (DivAssignNode id expr) = checkAssigns env id expr "/="
+checkStm env (ModAssignNode id expr) = checkAssigns env id expr "%="
+checkStm env (IncrNode (IdNode id))  = case Map.lookup id env of
+    Just (typ, bool) -> (typ == IntType || typ == FloatType) || error ("Error: type error with id: " ++ id)
+    Nothing -> error "Error: Undeclared variable"
+checkStm env (DecrNode (IdNode id))  = case Map.lookup id env of
+    Just (typ, bool) -> (typ == IntType || typ == FloatType) || error ("Error: type error with id: " ++ id)
+    Nothing -> error "Error: Undeclared variable"
 checkStm env (IfNode cond stm1)
     = let typecond = checkExpr env cond
           check1   = checkStms env stm1
