@@ -5,4 +5,4 @@ ProgramNode [VarDecl (IdNode "i") (NumNode 0),VarDecl (IdNode "k") (GtNode (NumN
 "Semantic Analysis: "
 True
 "Intermidiary Code:"
-[MOVEI "ti" 0,MOVEI "t0" 1,MOVEI "t1" 2,OP (Rel Gt) "tk" "t0" "t1",LABEL "L0",MOVE "t2" "ti",MOVEI "t3" 10,COND "t2" Lt "t3" "L3" "L2",LABEL "L3",JUMP "L1",LABEL "L1",MOVE "t4" "ti",MOVEI "t5" 1,OP Plus "ti" "t4" "t5",JUMP "L0",LABEL "L2"]
+[MOVEI "ti" 0,MOVEI "t0" 1,MOVEI "t1" 2,COND "t0" Gt "t1" "L0" "L1",LABEL "L0",MOVE "tk" "1",JUMP "L2",LABEL "L1",MOVE "tk" "0",LABEL "L2",LABEL "L3",MOVE "t2" "ti",MOVEI "t3" 10,COND "t2" Lt "t3" "L6" "L5",LABEL "L6",JUMP "L4",LABEL "L4",MOVE "t4" "ti",MOVEI "t5" 1,OP Plus "ti" "t4" "t5",JUMP "L3",LABEL "L5"]

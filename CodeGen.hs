@@ -22,7 +22,7 @@ data Instr
   -- | RETURN (Maybe String)             -- Return x
   deriving (Show, Eq)
 
-data BinOp = Plus | Minus | Mult | Div | Mod | Rel Relop
+data BinOp = Plus | Minus | Mult | Div | Mod -- | Rel Relop
   deriving (Show, Eq)
 
 data Relop = Lt | Le | Gt | Ge | Eq | Ne
@@ -52,8 +52,8 @@ newLabel = do
 transExpr :: Exp -> Temp -> State Supply [Instr]
 transExpr (NumNode n)  dest = return [MOVEI dest n]
 transExpr (RealNode r) dest = return [MOVER dest r]
-transExpr (IdNode x) dest = return [MOVE dest ("t" ++ x)]--temp = lookup...return [dest:=temp]
-transExpr (BoolNode b) dest -- por agora fica assim
+transExpr (IdNode x) dest = return [MOVE dest ("t" ++ x)]
+transExpr (BoolNode b) dest
   | b = return [MOVEB dest 1]
   | otherwise = return [MOVEB dest 0]
 -- binop
@@ -62,18 +62,22 @@ transExpr (SubNode e1 e2) dest = genBinOp e1 Minus e2 dest
 transExpr (MultNode e1 e2) dest = genBinOp e1 Mult e2 dest
 transExpr (DivNode e1 e2) dest = genBinOp e1 Div e2 dest
 transExpr (ModNode e1 e2) dest = genBinOp e1 Mod e2 dest
-transExpr (LtNode e1 e2) dest = genBinOp e1 (Rel Lt) e2 dest
-transExpr (GtNode e1 e2) dest = genBinOp e1 (Rel Gt) e2 dest
-transExpr (LeNode e1 e2) dest = genBinOp e1 (Rel Le) e2 dest
-transExpr (GeNode e1 e2) dest = genBinOp e1 (Rel Ge) e2 dest
-transExpr (EqNode e1 e2) dest = genBinOp e1 (Rel Eq) e2 dest
-transExpr (NeNode e1 e2) dest = genBinOp e1 (Rel Ne) e2 dest
--- TODO: condicoes && , || e !
-
-
+-- relop
+transExpr (LtNode e1 e2) dest = genRelOp (LtNode e1 e2) dest
+transExpr (GtNode e1 e2) dest = genRelOp (GtNode e1 e2) dest
+transExpr (LeNode e1 e2) dest = genRelOp (LeNode e1 e2) dest
+transExpr (GeNode e1 e2) dest = genRelOp (GeNode e1 e2) dest
+transExpr (EqNode e1 e2) dest = genRelOp (EqNode e1 e2) dest
+transExpr (NeNode e1 e2) dest = genRelOp (NeNode e1 e2) dest
+-- Operador !
+transExpr (NotNode e) dest = genRelOp (NotNode e) dest
+-- Operador &&
+transExpr (AndNode e1 e2) dest = genRelOp (AndNode e1 e2) dest
+-- Operador ||
+transExpr (OrNode e1 e2) dest = genRelOp (OrNode e1 e2) dest
 
 -- Operador Binário
-genBinOp ::  Exp -> BinOp -> Exp -> String -> State Supply [Instr]
+genBinOp :: Exp -> BinOp -> Exp -> Temp -> State Supply [Instr]
 genBinOp e1 op e2 dest = do
   t1 <- newTemp
   t2 <- newTemp
@@ -81,6 +85,13 @@ genBinOp e1 op e2 dest = do
   code2 <- transExpr e2 t2
   return (code1 ++ code2 ++ [OP op dest t1 t2])
 
+genRelOp :: Exp -> Temp -> State Supply [Instr]
+genRelOp exp dest = do
+  l1 <- newLabel
+  l2 <- newLabel
+  l3 <- newLabel
+  code1 <- transCond exp l1 l2
+  return $ code1 ++ [LABEL l1, MOVE dest "1", JUMP l3] ++ [LABEL l2, MOVE dest "0", LABEL l3]
 
 transRelop :: Exp -> Relop -> Exp -> Label -> Label -> State Supply [Instr]
 transRelop e1 op e2 lt lf = do
@@ -90,7 +101,7 @@ transRelop e1 op e2 lt lf = do
   code2 <- transExpr e2 t2
   return (code1 ++ code2 ++ [COND t1 op t2 lt lf])
 
-transCond :: Exp -> Label -> Label -> State Supply [Instr] -- TODO: acabar!!
+transCond :: Exp -> Label -> Label -> State Supply [Instr] 
 transCond (LtNode e1 e2) lt lf = transRelop e1 Lt e2 lt lf
 transCond (GtNode e1 e2) lt lf = transRelop e1 Gt e2 lt lf
 transCond (LeNode e1 e2) lt lf = transRelop e1 Le e2 lt lf
@@ -110,10 +121,10 @@ transCond (OrNode e1 e2) lt lf = do
 transCond (BoolNode True) lt lf = return [JUMP lt]
 transCond (BoolNode False) lt lf = return [JUMP lf]
 transCond (NotNode e1) lt lf = transCond e1 lf lt
---transCond exp lt lf = do
---  t <- newTemp
---  code1 <- transExpr exp t
---  return $ code1 ++ [COND t != 0 lt lf] -- FIXME: apenas passei o que estava na aula 10
+transCond exp lt lf = do
+  t <- newTemp
+  code1 <- transExpr exp t
+  return $ code1 ++ [COND t Ne "0" lt lf]
 
 -- Geração de Código para Comandos
 genStm :: Exp -> State Supply [Instr]
