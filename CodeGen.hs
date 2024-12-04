@@ -71,6 +71,7 @@ transExpr (NeNode e1 e2) dest = genBinOp e1 (Rel Ne) e2 dest
 -- TODO: condicoes && , || e !
 
 
+
 -- Operador Binário
 genBinOp ::  Exp -> BinOp -> Exp -> String -> State Supply [Instr]
 genBinOp e1 op e2 dest = do
@@ -96,11 +97,36 @@ transCond (LeNode e1 e2) lt lf = transRelop e1 Le e2 lt lf
 transCond (GeNode e1 e2) lt lf = transRelop e1 Ge e2 lt lf
 transCond (EqNode e1 e2) lt lf = transRelop e1 Eq e2 lt lf
 transCond (NeNode e1 e2) lt lf = transRelop e1 Ne e2 lt lf
+transCond (AndNode e1 e2) lt lf = do
+  l2 <- newLabel
+  code1 <- transCond e1 l2 lf
+  code2 <- transCond e2 lt lf
+  return $ code1 ++ [LABEL l2] ++ code2
+transCond (OrNode e1 e2) lt lf = do
+  l2 <- newLabel
+  code1 <- transCond e1 lt l2
+  code2 <- transCond e2 lt lf
+  return $ code1 ++ [LABEL l2] ++ code2
+transCond (BoolNode True) lt lf = return [JUMP lt]
+transCond (BoolNode False) lt lf = return [JUMP lf]
+transCond (NotNode e1) lt lf = transCond e1 lf lt
+--transCond exp lt lf = do
+--  t <- newTemp
+--  code1 <- transExpr exp t
+--  return $ code1 ++ [COND t != 0 lt lf] -- FIXME: apenas passei o que estava na aula 10
 
 -- Geração de Código para Comandos
 genStm :: Exp -> State Supply [Instr]
 genStm (AssignNode x expr) = do
-  transExpr expr x
+  transExpr expr ("t" ++ x)
+
+genStm (AddAssignNode id expr)  = genStm(AssignNode id (AddNode (IdNode id) expr))
+genStm (SubAssignNode id expr)  = genStm(AssignNode id (SubNode (IdNode id) expr))
+genStm (DivAssignNode id expr)  = genStm(AssignNode id (DivNode (IdNode id) expr))
+genStm (ModAssignNode id expr)  = genStm(AssignNode id (ModNode (IdNode id) expr))
+genStm (MultAssignNode id expr) = genStm(AssignNode id (MultNode (IdNode id) expr))
+genStm (IncrNode (IdNode id))   = genStm(AssignNode id (AddNode (IdNode id) (NumNode 1)))
+genStm (DecrNode (IdNode id))   = genStm(AssignNode id (SubNode (IdNode id) (NumNode 1)))
 
 -- todos sao iguais no codigo intermedio?
 genStm (ValDecl (IdNode x) expr) = genStm (AssignNode x expr)
