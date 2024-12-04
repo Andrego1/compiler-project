@@ -28,9 +28,6 @@ data BinOp = Plus | Minus | Mult | Div | Mod -- | Rel Relop
 data Relop = Lt | Le | Gt | Ge | Eq | Ne
   deriving (Show, Eq)
 
-
---data Cond = AndNode Exp Exp | OrNode Exp Exp | NotNode Exp
-
 type Temp = String
 type Label = String
 type Supply = (Int, Int) -- Contadores de temporários e etiquetas

@@ -14,7 +14,8 @@
     **apenas verificar se está tudo bem**
 
     - geração de código intermédio (funções estão defenidas em aula 10)
-    **ver melhor a questão das condições e operadores boleanos e TESTAR**
+    **UTILIZAR RE-UTILIZAÇÃO DE TEMPORARIOS aula12**
+    **apenas verificar se está tudo bem e TESTAR**
 
     - geração de código mips (aulas 11 e 12)
 

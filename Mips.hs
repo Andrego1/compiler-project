@@ -2,17 +2,8 @@ module Mips where
 
 import Control.Monad.State
 import qualified Data.Map as Map
+import CodeGen
 
-
-
-data BinOp = Plus | Minus | Mult | Div | Mod | And | Or
-  deriving (Show, Eq)
-
-data Relop = Lt | Le | Gt | Ge | Eq | Ne
-  deriving (Show, Eq)
-
-type Temp = String
-type Label = String
 
 -- Traduzir atribuições
 translateAssign :: Instr -> String
@@ -37,6 +28,7 @@ translateBinOp (OP Div dest src1 src2) =
   "div $" ++ dest ++ ", $" ++ src1 ++ ", $" ++ src2
 translateBinOp (OP Mod dest src1 src2) =
   "rem $" ++ dest ++ ", $" ++ src1 ++ ", $" ++ src2
+-- ESTES DOIS ULTIMOS NAO FAZEM SENTIDO testa exemplos de && e || em Main
 translateBinOp (OP And dest src1 src2) =
   "and $" ++ dest ++ ", $" ++ src1 ++ ", $" ++ src2
 translateBinOp (OP Or dest src1 src2) =
