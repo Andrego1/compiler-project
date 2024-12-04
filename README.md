@@ -10,8 +10,9 @@
     (ter muitas coisas complica o que temos de fazer em parte2) VER APENAS DEPPOIS DE TUDO, DEPOIS PODIAMOS FAZER
 
 ## 2º Parte
-    - DONE? - análise semantica (verificação de tipos, symbol table, ...)
+    - análise semantica (verificação de tipos, symbol table, ...)
     verificar se está tudo bem, mais testes e assim
+    FAZER && E || 
 
     - geração de código intermédio (funções estão defenidas em aula 10)
 
@@ -19,4 +20,4 @@
 
     - as variaveis apenas serão declaradas globalmente, não existem abito local nem global
 
-    - EM GERAL AINDA NAO TRATEI DO READLN, vamos deixar para o fim pois tenho duvidas
+    - *EM GERAL AINDA NAO TRATEI DO READLN, vamos deixar para o fim pois tenho duvidas e ver melhor o PRINT

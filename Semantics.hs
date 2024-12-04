@@ -29,7 +29,7 @@ checkComparison env e1 e2 bop =
 --função auxiliar usado para verificação de tipos de comparações
 checkEquality :: TypeEnv -> Exp -> Exp -> String -> Type
 checkEquality env e1 e2 bop =
-    let t1 = checkExpr env e1
+    let t1 = checkExpr env e1 
         t2 = checkExpr env e2
     in if t1 == t2 then BoolType
        else error $ "type error in " ++ bop --TODO melhorar menssagem
@@ -55,6 +55,16 @@ checkExpr env (LeNode e1 e2) = checkComparison env e1 e2 "<="
 checkExpr env (GeNode e1 e2) = checkComparison env e1 e2 ">="
 checkExpr env (EqNode e1 e2) = checkComparison env e1 e2 "=="
 checkExpr env (NeNode e1 e2) = checkComparison env e1 e2 "!="
+checkExpr env (AndNode e1 e2)= -- TODO: verificar se está correto! 
+    let t1 = checkExpr env e1
+        t2 = checkExpr env e2
+    in if (t1 == BoolType && t2 == BoolType) then BoolType
+       else error "Error: type error in '&&': Expected type Boolean"
+checkExpr env (OrNode e1 e2) = -- TODO: verificar se está correto!
+    let t1 = checkExpr env e1
+        t2 = checkExpr env e2
+    in if (t1 == BoolType && t2 == BoolType) then BoolType
+       else error "Error: type error in '||': Expected type Boolean"
 checkExpr env (NotNode e1)   = -- TODO: verificar se está correto!
     let t1 = checkExpr env e1
     in if (t1 == BoolType) then BoolType
@@ -143,7 +153,7 @@ checkStm env (WhileNode cond stm)
           check    = checkStms env stm
         in ((typecond == BoolType && check) || error "Error: error in while")
 
-checkStm env (PrintNode expr) =
+checkStm env (PrintNode expr) = -- TODO: verificar se este está bem
     let _ = checkExpr env expr -- pode haver erros na expression
     in True -- nao existem erros no comando em si
 
