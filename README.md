@@ -11,13 +11,13 @@
 
 ## 2º Parte
     - análise semantica (verificação de tipos, symbol table, ...)
-    verificar se está tudo bem, mais testes e assim
-    FAZER && E || 
+    **apenas verificar se está tudo bem**
 
     - geração de código intermédio (funções estão defenidas em aula 10)
+    **ver melhor a questão das condições e operadores boleanos e TESTAR**
 
     - geração de código mips (aulas 11 e 12)
 
-    - as variaveis apenas serão declaradas globalmente, não existem abito local nem global
+    - **NOTA** as variaveis apenas serão declaradas globalmente, não existem abito local
 
-    - *EM GERAL AINDA NAO TRATEI DO READLN, vamos deixar para o fim pois tenho duvidas e ver melhor o PRINT
+    - *EM GERAL AINDA NAO TRATEI DO READLN e PRINT, vamos deixar para o fim pois tenho duvidas e ver melhor o PRINT
