@@ -52,8 +52,8 @@ newLabel = do
 transExpr :: Exp -> Temp -> State Supply [Instr]
 transExpr (NumNode n)  dest = return [MOVEI dest n]
 transExpr (RealNode r) dest = return [MOVER dest r]
-transExpr (IdNode x) dest = return [MOVE dest ("t" ++ x)]--temp = lookup...return [dest:=temp]
-transExpr (BoolNode b) dest -- por agora fica assim
+transExpr (IdNode x) dest = return [MOVE dest ("t" ++ x)]
+transExpr (BoolNode b) dest
   | b = return [MOVEB dest 1]
   | otherwise = return [MOVEB dest 0]
 -- binop
@@ -68,7 +68,38 @@ transExpr (LeNode e1 e2) dest = genBinOp e1 (Rel Le) e2 dest
 transExpr (GeNode e1 e2) dest = genBinOp e1 (Rel Ge) e2 dest
 transExpr (EqNode e1 e2) dest = genBinOp e1 (Rel Eq) e2 dest
 transExpr (NeNode e1 e2) dest = genBinOp e1 (Rel Ne) e2 dest
--- TODO: condicoes && , || e !
+
+-- Operador !
+transExpr (NotNode e) dest = do
+  t <- newTemp
+  code <- transExpr e t
+  return $ code ++ [MOVEB dest (1 - t)]
+
+-- Operador &&
+transExpr (AndNode e1 e2) dest = do
+  lblFalse <- newLabel  
+  lblEnd <- newLabel    
+  t1 <- newTemp
+  code1 <- transExpr e1 t1
+  let test1 = [COND t1 Eq "0" lblFalse]
+  t2 <- newTemp
+  code2 <- transExpr e2 t2
+  let moveE2 = [MOVE dest t2, JUMP lblEnd]
+  let moveFalse = [LABEL lblFalse, MOVE dest "0"]
+  return $ code1 ++ test1 ++ code2 ++ moveE2 ++ moveFalse ++ [LABEL lblEnd]
+
+-- Operador ||
+  transExpr (OrNode e1 e2) dest = do
+  lblTrue <- newLabel   
+  lblEnd <- newLabel  
+  t1 <- newTemp
+  code1 <- transExpr e1 t1
+  let test1 = [COND t1 Ne "0" lblTrue]
+  t2 <- newTemp
+  code2 <- transExpr e2 t2
+  let moveE2 = [MOVE dest t2, JUMP lblEnd]
+  let moveTrue = [LABEL lblTrue, MOVE dest "1"]
+  return $ code1 ++ test1 ++ code2 ++ moveE2 ++ moveTrue ++ [LABEL lblEnd]
 
 
 
@@ -90,7 +121,7 @@ transRelop e1 op e2 lt lf = do
   code2 <- transExpr e2 t2
   return (code1 ++ code2 ++ [COND t1 op t2 lt lf])
 
-transCond :: Exp -> Label -> Label -> State Supply [Instr] -- TODO: acabar!!
+transCond :: Exp -> Label -> Label -> State Supply [Instr] 
 transCond (LtNode e1 e2) lt lf = transRelop e1 Lt e2 lt lf
 transCond (GtNode e1 e2) lt lf = transRelop e1 Gt e2 lt lf
 transCond (LeNode e1 e2) lt lf = transRelop e1 Le e2 lt lf
@@ -113,7 +144,7 @@ transCond (NotNode e1) lt lf = transCond e1 lf lt
 transCond exp lt lf = do
   t <- newTemp
   code1 <- transExpr exp t
-  return $ code1 ++ [COND t != 0 lt lf] -- FIXME: apenas passei o que estava na aula 10
+  return $ code1 ++ [COND t Ne 0 lt lf]
 
 -- Geração de Código para Comandos
 genStm :: Exp -> State Supply [Instr]
