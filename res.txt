@@ -1,6 +1,8 @@
 "Tokens: "
-[FUN,MAIN,LPAREN,RPAREN,LBRACE,VAR,ID "i",ATRIB,NUM 0,WHILE,LPAREN,ID "i",L,NUM 10,AND,TRUE,RPAREN,LBRACE,PRINT,LPAREN,ID "i",RPAREN,ID "i",ICR,RBRACE,RBRACE]
+[FUN,MAIN,LPAREN,RPAREN,LBRACE,VAR,ID "i",ATRIB,NUM 0,VAR,ID "k",ATRIB,NUM 1,G,NUM 2,WHILE,LPAREN,ID "i",L,NUM 10,AND,TRUE,RPAREN,LBRACE,ID "i",ICR,RBRACE,RBRACE]
 "AST: "
-ProgramNode [VarDecl (IdNode "i") (NumNode 0),WhileNode (AndNode (LtNode (IdNode "i") (NumNode 10)) (BoolNode True)) [PrintNode (IdNode "i"),IncrNode (IdNode "i")]]
+ProgramNode [VarDecl (IdNode "i") (NumNode 0),VarDecl (IdNode "k") (GtNode (NumNode 1) (NumNode 2)),WhileNode (AndNode (LtNode (IdNode "i") (NumNode 10)) (BoolNode True)) [IncrNode (IdNode "i")]]
 "Semantic Analysis: "
 True
+"Intermidiary Code:"
+[MOVEI "ti" 0,MOVEI "t0" 1,MOVEI "t1" 2,OP (Rel Gt) "tk" "t0" "t1",LABEL "L0",MOVE "t2" "ti",MOVEI "t3" 10,COND "t2" Lt "t3" "L3" "L2",LABEL "L3",JUMP "L1",LABEL "L1",MOVE "t4" "ti",MOVEI "t5" 1,OP Plus "ti" "t4" "t5",JUMP "L0",LABEL "L2"]

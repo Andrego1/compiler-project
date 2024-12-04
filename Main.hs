@@ -3,6 +3,7 @@ module Main where
 import Lexer
 import Parser
 import Semantics
+import CodeGen
 
 main :: IO ()
 main = do
@@ -16,4 +17,6 @@ main = do
   print("Semantic Analysis: ")
   let semantic = checkProgram ast
   print(semantic)
-  
+  let intCode = genProgram ast
+  print("Intermidiary Code:")
+  print(intCode)

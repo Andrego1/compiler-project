@@ -110,10 +110,10 @@ transCond (OrNode e1 e2) lt lf = do
 transCond (BoolNode True) lt lf = return [JUMP lt]
 transCond (BoolNode False) lt lf = return [JUMP lf]
 transCond (NotNode e1) lt lf = transCond e1 lf lt
-transCond exp lt lf = do
-  t <- newTemp
-  code1 <- transExpr exp t
-  return $ code1 ++ [COND t != 0 lt lf] -- FIXME: apenas passei o que estava na aula 10
+--transCond exp lt lf = do
+--  t <- newTemp
+--  code1 <- transExpr exp t
+--  return $ code1 ++ [COND t != 0 lt lf] -- FIXME: apenas passei o que estava na aula 10
 
 -- Geração de Código para Comandos
 genStm :: Exp -> State Supply [Instr]
@@ -161,40 +161,6 @@ genStm (WhileNode cond stmts) = do
   return $ [LABEL l1] ++ condCode ++ [LABEL l2] ++ stmCode ++ [JUMP l1, LABEL l3]
 
 
-{-
-genStm (WhenNode expr branches) = do
-  lblEnd <- newLabel
-  branchCode <- concat <$> mapM (genWhenBranch expr lblEnd) branches
-  return $ branchCode ++ [LABEL lblEnd]
--}
-
-{-
-genStm (FunDeclNode name params body) = do
-  lblStart <- newLabel
-  let paramMoves = [MOVE param ("param" ++ show i) | (param, i) <- zip (map fst params) [0..]]
-  bodyCode <- concat <$> mapM genStm body
-  return $ [LABEL lblStart] ++ paramMoves ++ bodyCode ++ [RETURN Nothing]
--}
-
-{-
-genStm (ReturnNode expr) = do
-  temp <- newTemp
-  code <- transExpr expr temp
-  return $ code ++ [RETURN (Just temp)]
-
-genStm _ = return []
--}
-
-{-
-genWhenBranch :: Exp -> Label -> (Exp, [Exp]) -> State Supply [Instr]
-genWhenBranch expr lblEnd (cond, stmts) = do
-  condVar <- newTemp
-  condCode <- transExpr cond condVar
-  stmCode <- concat <$> mapM genStm stmts
-  lblBranch <- newLabel
-  return $ condCode ++ [COND condVar Eq "1" lblBranch lblEnd, LABEL lblBranch] ++ stmCode ++ [JUMP lblEnd]
--}
-
 -- Função Principal para Gerar Código de um Programa
-genProgram :: [Exp] -> [Instr]
-genProgram stmts = evalState (concat <$> mapM genStm stmts) (0, 0)
+genProgram :: Exp -> [Instr]
+genProgram (ProgramNode stmts) = evalState (concat <$> mapM genStm stmts) (0, 0)
