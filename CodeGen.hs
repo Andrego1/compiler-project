@@ -91,7 +91,7 @@ genRelOp exp dest = do
   l2 <- newLabel
   l3 <- newLabel
   code1 <- transCond exp l1 l2
-  return $ code1 ++ [LABEL l1, MOVE dest "1", JUMP l3] ++ [LABEL l2, MOVE dest "0", LABEL l3]
+  return $ code1 ++ [LABEL l1, MOVEB dest 1, JUMP l3] ++ [LABEL l2, MOVEB dest 0, LABEL l3]
 
 transRelop :: Exp -> Relop -> Exp -> Label -> Label -> State Supply [Instr]
 transRelop e1 op e2 lt lf = do
