@@ -110,10 +110,10 @@ transCond (OrNode e1 e2) lt lf = do
 transCond (BoolNode True) lt lf = return [JUMP lt]
 transCond (BoolNode False) lt lf = return [JUMP lf]
 transCond (NotNode e1) lt lf = transCond e1 lf lt
---transCond exp lt lf = do
---  t <- newTemp
---  code1 <- transExpr exp t
---  return $ code1 ++ [COND t != 0 lt lf] -- FIXME: apenas passei o que estava na aula 10
+transCond exp lt lf = do
+  t <- newTemp
+  code1 <- transExpr exp t
+  return $ code1 ++ [COND t != 0 lt lf] -- FIXME: apenas passei o que estava na aula 10
 
 -- Geração de Código para Comandos
 genStm :: Exp -> State Supply [Instr]
