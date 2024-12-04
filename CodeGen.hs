@@ -22,7 +22,7 @@ data Instr
   -- | RETURN (Maybe String)             -- Return x
   deriving (Show, Eq)
 
-data BinOp = Plus | Minus | Mult | Div | Mod | Rel Relop
+data BinOp = Plus | Minus | Mult | Div | Mod -- | Rel Relop
   deriving (Show, Eq)
 
 data Relop = Lt | Le | Gt | Ge | Eq | Ne
@@ -62,49 +62,22 @@ transExpr (SubNode e1 e2) dest = genBinOp e1 Minus e2 dest
 transExpr (MultNode e1 e2) dest = genBinOp e1 Mult e2 dest
 transExpr (DivNode e1 e2) dest = genBinOp e1 Div e2 dest
 transExpr (ModNode e1 e2) dest = genBinOp e1 Mod e2 dest
-transExpr (LtNode e1 e2) dest = genBinOp e1 (Rel Lt) e2 dest
-transExpr (GtNode e1 e2) dest = genBinOp e1 (Rel Gt) e2 dest
-transExpr (LeNode e1 e2) dest = genBinOp e1 (Rel Le) e2 dest
-transExpr (GeNode e1 e2) dest = genBinOp e1 (Rel Ge) e2 dest
-transExpr (EqNode e1 e2) dest = genBinOp e1 (Rel Eq) e2 dest
-transExpr (NeNode e1 e2) dest = genBinOp e1 (Rel Ne) e2 dest
-
+-- relop
+transExpr (LtNode e1 e2) dest = genRelOp (LtNode e1 e2) dest
+transExpr (GtNode e1 e2) dest = genRelOp (GtNode e1 e2) dest
+transExpr (LeNode e1 e2) dest = genRelOp (LeNode e1 e2) dest
+transExpr (GeNode e1 e2) dest = genRelOp (GeNode e1 e2) dest
+transExpr (EqNode e1 e2) dest = genRelOp (EqNode e1 e2) dest
+transExpr (NeNode e1 e2) dest = genRelOp (NeNode e1 e2) dest
 -- Operador !
-transExpr (NotNode e) dest = do
-  t <- newTemp
-  code <- transExpr e t
-  return $ code ++ [MOVEB dest (1 - t)]
-
+transExpr (NotNode e) dest = genRelOp (NotNode e) dest
 -- Operador &&
-transExpr (AndNode e1 e2) dest = do
-  lblFalse <- newLabel  
-  lblEnd <- newLabel    
-  t1 <- newTemp
-  code1 <- transExpr e1 t1
-  let test1 = [COND t1 Eq "0" lblFalse]
-  t2 <- newTemp
-  code2 <- transExpr e2 t2
-  let moveE2 = [MOVE dest t2, JUMP lblEnd]
-  let moveFalse = [LABEL lblFalse, MOVE dest "0"]
-  return $ code1 ++ test1 ++ code2 ++ moveE2 ++ moveFalse ++ [LABEL lblEnd]
-
+transExpr (AndNode e1 e2) dest = genRelOp (AndNode e1 e2) dest
 -- Operador ||
-  transExpr (OrNode e1 e2) dest = do
-  lblTrue <- newLabel   
-  lblEnd <- newLabel  
-  t1 <- newTemp
-  code1 <- transExpr e1 t1
-  let test1 = [COND t1 Ne "0" lblTrue]
-  t2 <- newTemp
-  code2 <- transExpr e2 t2
-  let moveE2 = [MOVE dest t2, JUMP lblEnd]
-  let moveTrue = [LABEL lblTrue, MOVE dest "1"]
-  return $ code1 ++ test1 ++ code2 ++ moveE2 ++ moveTrue ++ [LABEL lblEnd]
-
-
+transExpr (OrNode e1 e2) dest = genRelOp (OrNode e1 e2) dest
 
 -- Operador Binário
-genBinOp ::  Exp -> BinOp -> Exp -> String -> State Supply [Instr]
+genBinOp :: Exp -> BinOp -> Exp -> Temp -> State Supply [Instr]
 genBinOp e1 op e2 dest = do
   t1 <- newTemp
   t2 <- newTemp
@@ -112,6 +85,13 @@ genBinOp e1 op e2 dest = do
   code2 <- transExpr e2 t2
   return (code1 ++ code2 ++ [OP op dest t1 t2])
 
+genRelOp :: Exp -> Temp -> State Supply [Instr]
+genRelOp exp dest = do
+  l1 <- newLabel
+  l2 <- newLabel
+  l3 <- newLabel
+  code1 <- transCond exp l1 l2
+  return $ code1 ++ [LABEL l1, MOVE dest "1", JUMP l3] ++ [LABEL l2, MOVE dest "0", LABEL l3]
 
 transRelop :: Exp -> Relop -> Exp -> Label -> Label -> State Supply [Instr]
 transRelop e1 op e2 lt lf = do
@@ -144,7 +124,7 @@ transCond (NotNode e1) lt lf = transCond e1 lf lt
 transCond exp lt lf = do
   t <- newTemp
   code1 <- transExpr exp t
-  return $ code1 ++ [COND t Ne 0 lt lf]
+  return $ code1 ++ [COND t Ne "0" lt lf]
 
 -- Geração de Código para Comandos
 genStm :: Exp -> State Supply [Instr]
@@ -191,40 +171,6 @@ genStm (WhileNode cond stmts) = do
   stmCode <- concat <$> mapM genStm stmts
   return $ [LABEL l1] ++ condCode ++ [LABEL l2] ++ stmCode ++ [JUMP l1, LABEL l3]
 
-
-{-
-genStm (WhenNode expr branches) = do
-  lblEnd <- newLabel
-  branchCode <- concat <$> mapM (genWhenBranch expr lblEnd) branches
-  return $ branchCode ++ [LABEL lblEnd]
--}
-
-{-
-genStm (FunDeclNode name params body) = do
-  lblStart <- newLabel
-  let paramMoves = [MOVE param ("param" ++ show i) | (param, i) <- zip (map fst params) [0..]]
-  bodyCode <- concat <$> mapM genStm body
-  return $ [LABEL lblStart] ++ paramMoves ++ bodyCode ++ [RETURN Nothing]
--}
-
-{-
-genStm (ReturnNode expr) = do
-  temp <- newTemp
-  code <- transExpr expr temp
-  return $ code ++ [RETURN (Just temp)]
-
-genStm _ = return []
--}
-
-{-
-genWhenBranch :: Exp -> Label -> (Exp, [Exp]) -> State Supply [Instr]
-genWhenBranch expr lblEnd (cond, stmts) = do
-  condVar <- newTemp
-  condCode <- transExpr cond condVar
-  stmCode <- concat <$> mapM genStm stmts
-  lblBranch <- newLabel
-  return $ condCode ++ [COND condVar Eq "1" lblBranch lblEnd, LABEL lblBranch] ++ stmCode ++ [JUMP lblEnd]
--}
 
 -- Função Principal para Gerar Código de um Programa
 genProgram :: [Exp] -> [Instr]
