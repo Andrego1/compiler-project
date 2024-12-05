@@ -1,8 +1,40 @@
 "Tokens: "
-[FUN,MAIN,LPAREN,RPAREN,LBRACE,VAR,ID "i",ATRIB,NUM 0,ID "i",ATRIB,ID "i",PLUS,NUM 1,VAR,ID "k",ATRIB,NUM 1,G,NUM 2,WHILE,LPAREN,ID "i",L,NUM 10,AND,TRUE,RPAREN,LBRACE,ID "i",ICR,RBRACE,RBRACE]
+[FUN,MAIN,LPAREN,RPAREN,LBRACE,VAR,ID "i",ATRIB,NUM 0,VAR,ID "c",ATRIB,NUM 2,IF,LPAREN,ID "i",EQUAL,NUM 0,RPAREN,LBRACE,ID "i",ATRIB,ID "i",PLUS,NUM 1,RBRACE,ELSE,LBRACE,ID "i",ATRIB,ID "i",MINUS,NUM 1,RBRACE,RBRACE]
 "AST: "
-ProgramNode [VarDecl (IdNode "i") (NumNode 0),AssignNode "i" (AddNode (IdNode "i") (NumNode 1)),VarDecl (IdNode "k") (GtNode (NumNode 1) (NumNode 2)),WhileNode (AndNode (LtNode (IdNode "i") (NumNode 10)) (BoolNode True)) [IncrNode (IdNode "i")]]
+ProgramNode [VarDecl (IdNode "i") (NumNode 0),VarDecl (IdNode "c") (NumNode 2),IfElseNode (EqNode (IdNode "i") (NumNode 0)) [AssignNode "i" (AddNode (IdNode "i") (NumNode 1))] [AssignNode "i" (SubNode (IdNode "i") (NumNode 1))]]
 "Semantic Analysis: "
 True
+fromList [("c",(IntType,True)),("i",(IntType,True))]
 "Intermidiary Code:"
-[MOVEI "ti" 0,MOVE "t0" "ti",MOVEI "t1" 1,OP Plus "ti" "t0" "t1",MOVEI "t2" 1,MOVEI "t3" 2,COND "t2" Gt "t3" "L0" "L1",LABEL "L0",MOVEB "tk" 1,JUMP "L2",LABEL "L1",MOVEB "tk" 0,LABEL "L2",LABEL "L3",MOVE "t4" "ti",MOVEI "t5" 10,COND "t4" Lt "t5" "L6" "L5",LABEL "L6",JUMP "L4",LABEL "L4",MOVE "t6" "ti",MOVEI "t7" 1,OP Plus "ti" "t6" "t7",JUMP "L3",LABEL "L5"]
+MOVEI "t1" 0
+MOVEI "t0" 2
+MOVE "t2" "t1"
+MOVEI "t3" 0
+COND "t2" Eq "t3" "L0" "L1"
+LABEL "L0"
+MOVE "t1" "t1"
+MOVEI "t2" 1
+OP Plus "t1" "t1" "t2"
+JUMP "L2"
+LABEL "L1"
+MOVE "t1" "t1"
+MOVEI "t2" 1
+OP Minus "t1" "t1" "t2"
+LABEL "L2"
+
+"MIPS:"
+"li $t1, 0"
+"li $t0, 2"
+"move $t2, $t1"
+"li $t3, 0"
+"beq t2, t3, L0"
+"L0:"
+"move $t1, $t1"
+"li $t2, 1"
+"add $t1, $t1, $t2"
+"j L2"
+"L1:"
+"move $t1, $t1"
+"li $t2, 1"
+"sub $t1, $t1, $t2"
+"L2:"

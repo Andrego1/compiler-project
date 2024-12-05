@@ -22,3 +22,7 @@
     - **NOTA** as variaveis apenas serão declaradas globalmente, não existem abito local
 
     - *EM GERAL AINDA NAO TRATEI DO READLN e PRINT, vamos deixar para o fim pois tenho duvidas e ver melhor o PRINT
+    
+    - IMPLEMENTAR RETURN
+
+    - **TENHO DE IMPLEMENTAR A RE-UTILIZAÇÃO DE TEMPORARIOS**
