@@ -153,6 +153,8 @@ checkStm env (WhileNode cond stm)
           check    = checkStms env stm
         in ((typecond == BoolType && check) || error "Error: error in while")
 
+--checkStm env (ReturnNode) = -- TODO: nao estou a ver bem o que fazer talvez deixar passar?
+
 checkStm env (PrintNode expr) = -- TODO: verificar se este está bem
     let _ = checkExpr env expr -- pode haver erros na expression
     in True -- nao existem erros no comando em si

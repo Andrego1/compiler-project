@@ -79,8 +79,10 @@ false   {FALSE}
 readln  {READLN}
 print   {PRINT}
 
+return  {RETURN}
+
 -- Token para anotação de tipo
-':'     {COLON}
+':'     {COLON} 
 
 -- Precedência e a associatividade dos operadores
 %left "||"
@@ -110,6 +112,7 @@ Command : Decl                          { $1 }
         | If                            { $1 }
         | While                         { $1 }
         | Print                         { $1 }
+        | return                        {ReturnNode}
         --| Readln                        { $1 }
 
 -- Comando para impressão
@@ -223,6 +226,7 @@ data Exp = ProgramNode [Exp]             -- Nó para encapsular a lista principa
          | WhileNode Exp [Exp]
          | PrintNode Exp
          | ReadlnNode
+         | ReturnNode
          | VarDecl Exp Exp
          | VarDeclTyped Exp Type Exp
          | ValDecl Exp Exp

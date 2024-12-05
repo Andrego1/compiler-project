@@ -11,10 +11,10 @@
 
 ## 2º Parte
     - análise semantica (verificação de tipos, symbol table, ...)
-    **apenas verificar se está tudo bem**
+    **apenas VERIFCAR se está tudo bem**
 
     - geração de código intermédio (funções estão defenidas em aula 10)
-    **UTILIZAR RE-UTILIZAÇÃO DE TEMPORARIOS aula12**
+    - **DONE** UTILIZAR RE-UTILIZAÇÃO DE TEMPORARIOS aula12
     **apenas verificar se está tudo bem e TESTAR**
 
     - geração de código mips (aulas 11 e 12)
@@ -23,6 +23,10 @@
 
     - *EM GERAL AINDA NAO TRATEI DO READLN e PRINT, vamos deixar para o fim pois tenho duvidas e ver melhor o PRINT
     
-    - IMPLEMENTAR RETURN
+    - verificar se o RETURN funciona bem, ele deverá simplesmnete fazer jump para o fim do codigo
 
-    - **TENHO DE IMPLEMENTAR A RE-UTILIZAÇÃO DE TEMPORARIOS**
+    - **DONE** TENHO DE IMPLEMENTAR A RE-UTILIZAÇÃO DE TEMPORARIOS
+
+    - é necessario syscall quando acaba e para ler/print
+    ver https://www.dcc.fc.up.pt/~ricroc/aulas/2324/ac/ o mips programing
+    ou então a aula 12 de compildaores

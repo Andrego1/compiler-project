@@ -28,7 +28,7 @@ translateBinOp (OP Div dest src1 src2) =
   "div $" ++ dest ++ ", $" ++ src1 ++ ", $" ++ src2
 translateBinOp (OP Mod dest src1 src2) =
   "rem $" ++ dest ++ ", $" ++ src1 ++ ", $" ++ src2
--- ESTES DOIS ULTIMOS NAO FAZEM SENTIDO testa exemplos de && e || em Main
+-- ESTES DOIS ULTIMOS NAO FAZEM SENTIDO pois And nao existem, sao condições
 --translateBinOp (OP And dest src1 src2) =
 --  "and $" ++ dest ++ ", $" ++ src1 ++ ", $" ++ src2
 --translateBinOp (OP Or dest src1 src2) =
@@ -42,15 +42,15 @@ translateJump (JUMP lbl) =
   "j " ++ lbl
 translateJump (COND src1 rel src2 lblTrue lblFalse) =
   case rel of
-    Lt -> "blt " ++ src1 ++ ", " ++ src2 ++ ", " ++ lblTrue
-    Le -> "ble " ++ src1 ++ ", " ++ src2 ++ ", " ++ lblTrue
-    Gt -> "bgt " ++ src1 ++ ", " ++ src2 ++ ", " ++ lblTrue
-    Ge -> "bge " ++ src1 ++ ", " ++ src2 ++ ", " ++ lblTrue
-    Eq -> "beq " ++ src1 ++ ", " ++ src2 ++ ", " ++ lblTrue
-    Ne -> "bne " ++ src1 ++ ", " ++ src2 ++ ", " ++ lblTrue
+    Lt -> "blt " ++ "$" ++ src1 ++ ", " ++ "$" ++ src2 ++ ", " ++ lblTrue
+    Le -> "ble " ++ "$" ++ src1 ++ ", " ++ "$" ++ src2 ++ ", " ++ lblTrue
+    Gt -> "bgt " ++ "$" ++ src1 ++ ", " ++ "$" ++ src2 ++ ", " ++ lblTrue
+    Ge -> "bge " ++ "$" ++ src1 ++ ", " ++ "$" ++ src2 ++ ", " ++ lblTrue
+    Eq -> "beq " ++ "$" ++ src1 ++ ", " ++ "$" ++ src2 ++ ", " ++ lblTrue
+    Ne -> "bne " ++ "$" ++ src1 ++ ", " ++ "$" ++ src2 ++ ", " ++ lblTrue
 
 generateMIPS :: [Instr] -> [String]
-generateMIPS =  map translateInstr
+generateMIPS instrs = "main:" : map translateInstr instrs ++ ["end:"]
   where
     translateInstr instr =
       case instr of

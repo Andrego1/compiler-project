@@ -7,6 +7,7 @@ import qualified Data.Map as Map
 import Parser (Exp(..), Type(..)) -- Usar a AST definida anteriormente
 import Semantics (TypeEnv, getDecl, Ident) -- pode nem ser necessario
 import Text.Printf (toChar)
+import Data.List (elemIndex)
 
 -- Representação de Instruções
 data Instr
@@ -46,10 +47,11 @@ newLabel = do
   put (temps, labels + 1)
   return ("L" ++ show labels)
 
-releaseTemp :: State Supply ()
-releaseTemp = do
-  (n, otherState) <- get
-  put (n - 1, otherState) -- decrementa o contador
+ -- decrementa o contador
+releaseTemp :: Int -> State Supply ()
+releaseTemp tempStart = do
+  (temps, labels) <- get
+  when (temps > tempStart) $ put (temps - 1, labels)
 
 -- Geração de Código Intermediário para Expressões
 transExpr :: Exp -> [Ident] -> Temp -> State Supply [Instr]
@@ -86,8 +88,8 @@ genBinOp e1 op e2 keys dest = do
   t2 <- newTemp
   code1 <- transExpr e1 keys t1
   code2 <- transExpr e2 keys t2
-  releaseTemp
-  releaseTemp
+  releaseTemp (length keys)
+  releaseTemp (length keys)
   return (code1 ++ code2 ++ [OP op dest t1 t2])
 
 genRelOp :: Exp -> Temp -> [Ident] -> State Supply [Instr]
@@ -102,11 +104,11 @@ transRelop :: Exp -> Relop -> Exp -> Label -> Label -> [Ident] -> State Supply [
 transRelop e1 op e2 lt lf keys = do
   t1 <- newTemp
   t2 <- newTemp
-  releaseTemp
+  releaseTemp (length keys)
   code1 <- transExpr e1 keys t1
   code2 <- transExpr e2 keys t2
-  releaseTemp
-  releaseTemp
+  releaseTemp (length keys)
+  releaseTemp (length keys)
   return (code1 ++ code2 ++ [COND t1 op t2 lt lf])
 
 transCond :: Exp -> Label -> Label -> [Ident] -> State Supply [Instr]
@@ -132,13 +134,15 @@ transCond (NotNode e1) lt lf keys= transCond e1 lf lt keys
 transCond exp lt lf keys= do
   t <- newTemp
   code1 <- transExpr exp keys t
-  releaseTemp
+  releaseTemp (length keys)
   return $ code1 ++ [COND t Ne "0" lt lf]
 
 -- Geração de Código para Comandos
 genStm :: Exp -> [Ident] -> State Supply [Instr]
 genStm (AssignNode x expr) keys = do
   transExpr expr keys ("t" ++ show (nelem x keys))
+
+genStm ReturnNode keys = return [JUMP "end"] -- TODO: verificar !!
 
 genStm (AddAssignNode id expr) keys = genStm (AssignNode id (AddNode (IdNode id) expr)) keys
 genStm (SubAssignNode id expr) keys = genStm (AssignNode id (SubNode (IdNode id) expr)) keys
@@ -187,8 +191,7 @@ genProgram (ProgramNode stmts) env = evalState (concat <$> mapM (`genStm` keys) 
   where nIds = Map.size env
         keys = Map.keys env
 
-nelem :: Ident -> [Ident] -> Int
-nelem a [] = 0
-nelem a (x:xs)
-  | a == x = 0
-  | otherwise = 1 + nelem a xs
+nelem :: Eq a => a -> [a] -> Int
+nelem a xs = case elemIndex a xs of
+  Just idx -> idx
+  Nothing  -> -1

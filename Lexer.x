@@ -40,6 +40,7 @@ tokens :-
 
     print                       {\_ -> PRINT}
     readln                      {\_ -> READLN}
+    return                      {\_ -> RETURN}
 
 
     -- Identificadores 
@@ -163,6 +164,7 @@ data Token = ID String       -- e.g. xy123
 
             | READLN         -- função readln()
             | PRINT          -- função print()
+            | RETURN  
 
             | COLON           -- :
             deriving (Show, Eq)    

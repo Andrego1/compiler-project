@@ -4,43 +4,53 @@ import Lexer
 import Parser
 import Semantics
 import CodeGen
-
 import MipsGen
 
 main :: IO ()
 main = do
   txt <- getContents
-  print "Tokens: "
+
+  -- Imprime tokens
+  putStrLn "Tokens:"
   let tokens = alexScanTokens txt
-  print (tokens)
-  print "AST: "
+  print tokens
+  putStrLn "" 
+
+  -- Imprime a AST
+  putStrLn "AST:"
   let ast = parse tokens
   print ast
-  print "Semantic Analysis: "
+  putStrLn ""  
+
+  -- Imprime a Análise Semântica True se tudo esta bem
+  putStrLn "Semantic Analysis:"
   let semantic = checkProgram ast
   print semantic
+  putStrLn ""  
+
+  -- Imprime a Tabela de Símbolos
   let symbolTable = getDecl $ aux ast
+  putStrLn "Symbol Table:"
   print symbolTable
+  putStrLn ""  
+
+  -- Imprime o Código Intermediário
   let intCode = genProgram ast symbolTable
-  print "Intermidiary Code:"
-  --print(intCode)
+  putStrLn "Intermediate Code:"
   printInterm intCode
-  print "MIPS:"
+  putStrLn "" 
+
+  -- Imprime o código MIPS
+  putStrLn "MIPS Code:"
   let mips = generateMIPS intCode
-  --print mips
   printMips mips
 
+-- obter os comandos de um programa
 aux :: Exp -> [Exp]
 aux (ProgramNode stms) = stms
 
 printMips :: [String] -> IO ()
-printMips [] = return ()
-printMips (x:xs) = do
-  print x
-  printMips xs
+printMips = mapM_ putStrLn
 
 printInterm :: [Instr] -> IO ()
-printInterm [] = return ()
-printInterm (x:xs) = do
-  print x
-  printInterm xs
+printInterm = mapM_ print
