@@ -15,7 +15,7 @@ checkArithmetic env e1 e2 op =
     let t1 = checkExpr env e1
         t2 = checkExpr env e2
     in if t1 == IntType && t2 == IntType then IntType
-       else if (t1 == FloatType || t2 == FloatType) && (t1 == IntType || t2 == IntType) then FloatType --TODO: verificar se está correto
+       else if (t1 == FloatType || t2 == FloatType) && (t1 == IntType || t2 == IntType) then FloatType 
        else error $ "Error: type error in '" ++ op ++ "': Expected matching types, but got (" ++ show t1 ++ ", " ++ show t2 ++ ")"
 
 -- função auxiliar usado para verificação de tipos de expressões boleanas exceto comparação
@@ -25,15 +25,7 @@ checkComparison env e1 e2 bop =
         t2 = checkExpr env e2
     in if t1 == t2 then BoolType
        else error $ "Error: Type error in '" ++ bop ++ "': Expected matching types, but got (" ++ show t1 ++ ", " ++ show t2 ++ ")"
-{-
---função auxiliar usado para verificação de tipos de comparações
-checkEquality :: TypeEnv -> Exp -> Exp -> String -> Type
-checkEquality env e1 e2 bop =
-    let t1 = checkExpr env e1 
-        t2 = checkExpr env e2
-    in if t1 == t2 then BoolType
-       else error $ "type error in " ++ bop --TODO melhorar menssagem
--}
+
 -- verifica o tipos das expressões aritméticas e boleanas
 checkExpr :: TypeEnv -> Exp -> Type
 checkExpr env (IdNode x)   = case Map.lookup x env of
@@ -42,6 +34,7 @@ checkExpr env (IdNode x)   = case Map.lookup x env of
 checkExpr env (RealNode _) = FloatType
 checkExpr env (BoolNode _) = BoolType
 checkExpr env (NumNode _)  = IntType
+checkExpr env (ReadlnNode) = IntType -- o readln é usado na atribuição logo 
 -- para as outras operações (+,-,*,/,%) é o mesmo apenas muda a menssagem de erro
 checkExpr env (AddNode e1 e2)  = checkArithmetic env e1 e2 "+"
 checkExpr env (SubNode e1 e2)  = checkArithmetic env e1 e2 "-"
@@ -55,17 +48,17 @@ checkExpr env (LeNode e1 e2) = checkComparison env e1 e2 "<="
 checkExpr env (GeNode e1 e2) = checkComparison env e1 e2 ">="
 checkExpr env (EqNode e1 e2) = checkComparison env e1 e2 "=="
 checkExpr env (NeNode e1 e2) = checkComparison env e1 e2 "!="
-checkExpr env (AndNode e1 e2)= -- TODO: verificar se está correto! 
+checkExpr env (AndNode e1 e2)=
     let t1 = checkExpr env e1
         t2 = checkExpr env e2
     in if (t1 == BoolType && t2 == BoolType) then BoolType
        else error "Error: type error in '&&': Expected type Boolean"
-checkExpr env (OrNode e1 e2) = -- TODO: verificar se está correto!
+checkExpr env (OrNode e1 e2) = 
     let t1 = checkExpr env e1
         t2 = checkExpr env e2
     in if (t1 == BoolType && t2 == BoolType) then BoolType
        else error "Error: type error in '||': Expected type Boolean"
-checkExpr env (NotNode e1)   = -- TODO: verificar se está correto!
+checkExpr env (NotNode e1)   = 
     let t1 = checkExpr env e1
     in if (t1 == BoolType) then BoolType
        else error "Error: type error in '!': Expected type Boolean"
@@ -73,19 +66,13 @@ checkExpr env (NotNode e1)   = -- TODO: verificar se está correto!
 validateExpr :: Type -> Exp -> TypeEnv -> Bool
 validateExpr ty exp env  = case checkExpr env exp of
     FloatType -> FloatType == ty
-    IntType   -> IntType   == ty
+    IntType   -> IntType   == ty || FloatType == ty -- se declarar como float e expr dar um int deixa passar
     BoolType  -> BoolType  == ty
---validateExpr FloatType (RealNode _) = True
---validateExpr BoolType (BoolNode _) = True
---validateExpr _ _ = False
 
 inferType :: Exp -> TypeEnv -> Type
-inferType exp env  = checkExpr env exp 
---inferType (RealNode _) = FloatType
---inferType (BoolNode _) = BoolType
---inferType expr         = error $ "Error: It was not possible to infer the type of the expression: " ++ show expr
+inferType exp env  = checkExpr env exp
 
-extendEnv :: TypeEnv -> Exp -> TypeEnv --TODO: verificar se novas funções funcionam bem!
+extendEnv :: TypeEnv -> Exp -> TypeEnv
 extendEnv env decl = case decl of
     VarDeclTyped (IdNode id) typ expr -> case Map.lookup id env of
         Just _  -> error $ "Error: Variable '" ++ id ++ "' already declared"
@@ -114,13 +101,13 @@ checkStms env = foldr ((&&) . checkStm env) True
 
 checkAssigns :: TypeEnv -> Ident -> Exp -> String -> Bool
 checkAssigns env id expr assign = case Map.lookup id env of
-    Just (typ, bool) -> case checkExpr env expr of --(checkExpr env expr == typ && bool) || error ("Error: type error in assign: '" ++ assign ++ "' with id: " ++ id)
+    Just (typ, bool) -> case checkExpr env expr of
                             IntType   -> ((IntType == typ || typ == FloatType) && bool) || error ("Error: type error in assign: '" ++ assign ++ "' with id: " ++ id)
                             FloatType -> FloatType== typ && bool || error ("Error: type error in assign: '" ++ assign ++ "' with id: " ++ id)
                             BoolType  -> BoolType == typ && bool || error ("Error: type error in assign: '" ++ assign ++ "' with id: " ++ id)
     Nothing -> error "Error: Undeclared variable"
 
-checkStm :: TypeEnv -> Exp -> Bool --TODO: verificar os assignements todos
+checkStm :: TypeEnv -> Exp -> Bool
 -- (agora o ++ e -- não são expressoes mas commandos/statements)
 checkStm env (AssignNode id expr)    = checkAssigns env id expr "="
 checkStm env (AddAssignNode id expr) = checkAssigns env id expr "+="
@@ -130,12 +117,6 @@ checkStm env (DivAssignNode id expr) = checkAssigns env id expr "/="
 checkStm env (ModAssignNode id expr) = checkAssigns env id expr "%="
 checkStm env (IncrNode (IdNode id))  = checkAssigns env id (NumNode 1) "++"
 checkStm env (DecrNode (IdNode id))  = checkAssigns env id (NumNode 1) "--"
---checkStm env (IncrNode (IdNode id))  = case Map.lookup id env of
---    Just (typ, bool) -> (typ == IntType || typ == FloatType) || error ("Error: type error with id: " ++ id)
---    Nothing -> error "Error: Undeclared variable"
---checkStm env (DecrNode (IdNode id))  = case Map.lookup id env of
---    Just (typ, bool) -> (typ == IntType || typ == FloatType) || error ("Error: type error with id: " ++ id)
---    Nothing -> error "Error: Undeclared variable"
 
 checkStm env (IfNode cond stm1)
     = let typecond = checkExpr env cond
@@ -153,13 +134,13 @@ checkStm env (WhileNode cond stm)
           check    = checkStms env stm
         in ((typecond == BoolType && check) || error "Error: error in while")
 
---checkStm env (ReturnNode) = -- TODO: nao estou a ver bem o que fazer talvez deixar passar?
+checkStm env (ReturnNode) = True
 
-checkStm env (PrintNode expr) = -- TODO: verificar se este está bem
-    let _ = checkExpr env expr -- pode haver erros na expression
+checkStm env (PrintNode expr) =
+    let _ = checkExpr env expr -- o tipo nao interssa, mas sim se a expr esta correta
     in True -- nao existem erros no comando em si
 
-checkStm env _ = True -- estou a pensar as declaracoes que passam por aqui
+checkStm env _ = True -- nunca passaria nada diferente do que tenho logo True
 
 -- recebe AST e verifica semanticamente o programa
 checkProgram :: Exp -> Bool
@@ -168,5 +149,7 @@ checkProgram _ = error "Error: Program should start with 'fun main(){....}'"
 
 -- cria o ambiente das variaveis todas, uma vez que o ambito é global
 getDecl :: [Exp] -> TypeEnv
-getDecl [] = Map.empty
-getDecl (exp:rest) = extendEnv (getDecl rest) exp
+getDecl = foldl processDecl Map.empty
+  where
+    processDecl = extendEnv
+-- hint diz que podia fazer eta reduce

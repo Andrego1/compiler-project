@@ -4,5 +4,9 @@ fun main () {
     val and = a && b
     val or  = b || a
     val not = !b
-    print("$a $b $and $or $not")
+    print(a)
+    print(b)
+    print(and)
+    print(or)
+    print(not)
 }

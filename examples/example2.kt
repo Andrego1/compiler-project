@@ -4,5 +4,9 @@ fun main () {
     val c = 10/2
     val d = 10-5
     val e = 10%2
-    print("Sum: $a, Product: $b, Quotient: $c, Difference: $d, Mod: $e")
+    print(a)
+    print(b)
+    print(c)
+    print(d)
+    print(e)
 }

@@ -14,11 +14,13 @@ data Instr
   = MOVE Temp Temp                -- x = y
   | MOVEI Temp Int                  -- x = int
   | MOVER Temp Float
-  | MOVEB Temp Int
+  -- | MOVEI Temp Int
   | OP BinOp Temp Temp Temp     -- x = y op z
   | LABEL Label                      -- Label:
   | JUMP Label                       -- goto Label
   | COND Temp Relop Temp Label Label -- if x op y goto Label1 else goto Label2
+  | PRINT Temp
+  | READLN Temp
   -- | PARAM String                      -- Param x
   -- | CALL String Int                   -- Call func n_args
   -- | RETURN (Maybe String)             -- Return x
@@ -59,8 +61,8 @@ transExpr (NumNode n) keys dest = return [MOVEI dest n]
 transExpr (RealNode r) keys dest = return [MOVER dest r]
 transExpr (IdNode x) keys dest = return [MOVE dest ("t" ++ show (nelem x keys))]
 transExpr (BoolNode b) keys dest
-  | b = return [MOVEB dest 1]
-  | otherwise = return [MOVEB dest 0]
+  | b = return [MOVEI dest 1]
+  | otherwise = return [MOVEI dest 0]
 -- binop
 transExpr (AddNode e1 e2) keys dest = genBinOp e1 Plus e2 keys dest
 transExpr (SubNode e1 e2) keys dest = genBinOp e1 Minus e2 keys dest
@@ -80,6 +82,8 @@ transExpr (NotNode e) keys dest = genRelOp (NotNode e) dest keys
 transExpr (AndNode e1 e2) keys dest = genRelOp (AndNode e1 e2) dest keys
 -- Operador ||
 transExpr (OrNode e1 e2) keys dest = genRelOp (OrNode e1 e2) dest keys
+-- readln
+transExpr ReadlnNode keys dest = return [READLN dest] -- TODO: verificar !!
 
 -- Operador Binário
 genBinOp :: Exp -> BinOp -> Exp -> [Ident] -> Temp -> State Supply [Instr]
@@ -98,7 +102,7 @@ genRelOp exp dest keys= do
   l2 <- newLabel
   l3 <- newLabel
   code1 <- transCond exp l1 l2 keys
-  return $ code1 ++ [LABEL l1, MOVEB dest 1, JUMP l3] ++ [LABEL l2, MOVEB dest 0, LABEL l3]
+  return $ code1 ++ [LABEL l1, MOVEI dest 1, JUMP l3] ++ [LABEL l2, MOVEI dest 0, LABEL l3]
 
 transRelop :: Exp -> Relop -> Exp -> Label -> Label -> [Ident] -> State Supply [Instr]
 transRelop e1 op e2 lt lf keys = do
@@ -144,6 +148,12 @@ genStm (AssignNode x expr) keys = do
 
 genStm ReturnNode keys = return [JUMP "end"] -- TODO: verificar !!
 
+genStm (PrintNode expr) keys = do -- TODO: verificar !!
+  t <- newTemp
+  exprCode <- transExpr expr keys t
+  releaseTemp (length keys)
+  return $ exprCode ++ [PRINT t]
+
 genStm (AddAssignNode id expr) keys = genStm (AssignNode id (AddNode (IdNode id) expr)) keys
 genStm (SubAssignNode id expr) keys = genStm (AssignNode id (SubNode (IdNode id) expr)) keys
 genStm (DivAssignNode id expr) keys = genStm (AssignNode id (DivNode (IdNode id) expr)) keys
@@ -187,7 +197,7 @@ genStm (WhileNode cond stmts) keys = do
 
 -- Função Principal para Gerar Código de um Programa
 genProgram :: Exp -> TypeEnv -> [Instr]
-genProgram (ProgramNode stmts) env = evalState (concat <$> mapM (`genStm` keys) stmts) (nIds, 0)
+genProgram (ProgramNode stmts) env = LABEL "main" : evalState (concat <$> mapM (`genStm` keys) stmts) (nIds, 0) ++ [LABEL "end"]
   where nIds = Map.size env
         keys = Map.keys env
 

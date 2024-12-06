@@ -1,4 +1,4 @@
 fun main() {
-    val s: String = readln()
+    val s: Int = readln()
     print(s)
 }

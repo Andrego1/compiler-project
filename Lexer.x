@@ -27,7 +27,7 @@ tokens :-
     Int                         { \_ -> INT }
     Float                       { \_ -> FLOAT }
     Boolean                     {\_ -> BOOLEAN }
-    String                      {\_ -> STRING }
+    --String                      {\_ -> STRING }
 
     fun                         { \_ -> FUN }
     main                        { \_ -> MAIN}
@@ -53,7 +53,7 @@ tokens :-
     $digit+"."$digit+       { \s -> REAL (read s) } -- "-"? para suportar numeros negativos
 
     -- Strings -- 
-    \"([^\"]|\\.)*\"            { \s -> STR $ replaceEscapedChars (init (tail s)) }
+    --\"([^\"]|\\.)*\"            { \s -> STR $ replaceEscapedChars (init (tail s)) }
 
 
     -- Comentários de linha única (//...)
@@ -109,7 +109,7 @@ tokens :-
 data Token = ID String       -- e.g. xy123
             | NUM Int        -- e.g. 123
             | REAL Float     -- e.g. 123.45
-            | STR String  -- e.g "andre"
+            -- | STR String  -- e.g "andre"
             
             | LPAREN         -- (
             | RPAREN         -- )
@@ -168,7 +168,7 @@ data Token = ID String       -- e.g. xy123
 
             | COLON           -- :
             deriving (Show, Eq)    
-
+{-
 -- Função para substituir caracteres escapados em strings
 replaceEscapedChars :: String -> String
 replaceEscapedChars [] = []
@@ -178,4 +178,5 @@ replaceEscapedChars ('\\':'r':xs)  = '\r' : replaceEscapedChars xs    -- retorno
 replaceEscapedChars ('\\':'"':xs)  = '\"' : replaceEscapedChars xs    -- aspa dupla
 replaceEscapedChars ('\\':'\\':xs) = '\\' : replaceEscapedChars xs    -- barra invertida
 replaceEscapedChars (x:xs)         = x    : replaceEscapedChars xs    -- outros caracteres
+-}
 }

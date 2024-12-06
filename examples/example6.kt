@@ -5,12 +5,12 @@ fun main (){
     /*
     //sdiwbidbw
     nvfewoincvownocv
-    /*isqbin
+    isqbin
     fun main (){}
      */
     //print("hello")
     val i = 0
-    //var t: Boolean TEMOS DE ACEITAR ESTE !
+    //var t: Boolean //TEMOS DE ACEITAR ESTE !
     var t = true
     if (i > 10){
         t = false
@@ -19,11 +19,10 @@ fun main (){
     }
 
     var k = 2
-    if (k >= 0) 
-    k++
-    else {
-        print("hello")
-        print("goodbye")
+    if (k >= 0){
+        k++
+    } else {
+        print(k)
     }
     print(t)
 }

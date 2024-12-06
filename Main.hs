@@ -45,7 +45,7 @@ main = do
   let mips = generateMIPS intCode
   printMips mips
 
--- obter os comandos de um programa
+
 aux :: Exp -> [Exp]
 aux (ProgramNode stms) = stms
 

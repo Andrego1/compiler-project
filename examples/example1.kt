@@ -5,6 +5,7 @@ fun main (){
     var x = 1
     var z: Float = 2.1
     x = x + 2
-    z += 1.0
+    z++
+    var o: Float = readln()
     print(x)
 }

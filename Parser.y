@@ -13,7 +13,7 @@ import Lexer
 id      {ID $$}
 num     {NUM $$}
 real    {REAL $$}
-str     {STR $$}
+--str     {STR $$}
 
 -- Tokens para caracteres de pontuação
 '('     {LPAREN}
@@ -31,7 +31,7 @@ while   {WHILE}
 int     {INT}
 float   {FLOAT}
 boolean {BOOLEAN}
-string    {STRING}
+--string  {STRING}
 
 -- Tokens para declaração de função
 fun     {FUN}
@@ -138,11 +138,11 @@ While : while '(' Expr ')' Command           { WhileNode $3 [$5] }
 Type : int                              { IntType }
      | float                            { FloatType }
      | boolean                          { BoolType }
-     | string                           { StringType }
+     --| string                           { StringType }
 
 -- Inicialização permitidas
 InitExp : Expr                          { $1 }  -- Para int e float
-        | Sexp                          { $1 }  -- Para string
+        --| Sexp                          { $1 }  -- Para string
         --| Readln                        { ReadlnNode } -- Leitura da entrada padrão
 
 
@@ -195,7 +195,7 @@ Atomic : id                             {IdNode $1}
        | '(' Expr ')'                     { $2 }
 
 -- Expressão para string
-Sexp : str                              { StringNode $1 }
+--Sexp : str                              { StringNode $1 }
 
 {
 -- Estrutura da AST (Árvore Sintática Abstrata) com tipos e nós de operações

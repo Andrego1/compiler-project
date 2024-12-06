@@ -13,8 +13,8 @@ translateAssign (MOVEI dest imm) =
   "li $" ++ dest ++ ", " ++ show imm
 translateAssign (MOVER dest r) =
   "li $" ++ dest ++ ", " ++ show r
-translateAssign (MOVEB dest b) =
-  "li $" ++ dest ++ ", " ++ show b
+--translateAssign (MOVEB dest b) =
+--  "li $" ++ dest ++ ", " ++ show b
 
 -- Traduzir operações binárias
 translateBinOp :: Instr -> String
@@ -50,14 +50,14 @@ translateJump (COND src1 rel src2 lblTrue lblFalse) =
     Ne -> "bne " ++ "$" ++ src1 ++ ", " ++ "$" ++ src2 ++ ", " ++ lblTrue
 
 generateMIPS :: [Instr] -> [String]
-generateMIPS instrs = "main:" : map translateInstr instrs ++ ["end:"]
+generateMIPS instrs =  map translateInstr instrs
   where
     translateInstr instr =
       case instr of
         MOVE{} -> translateAssign instr
         MOVEI{} -> translateAssign instr
         MOVER{} -> translateAssign instr
-        MOVEB{} -> translateAssign instr
+        --MOVEB{} -> translateAssign instr
         OP{} -> translateBinOp instr
         JUMP{} -> translateJump instr
         LABEL{} -> translateJump instr

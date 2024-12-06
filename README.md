@@ -1,31 +1,27 @@
 # Projeto de Compiladores
 --------------------------
 
-## Correcoes a fazer:
-- DONE - Ter o unary_minus para permitir -(1+2)+2 e deixar de permitir numeros negativos na expressão regular, unary_minus TOKEN
+## Correcoes a fazer 1º Parte:
+- **DONE** - Ter o unary_minus para permitir -(1+2)+2 e deixar de permitir numeros negativos na expressão regular, unary_minus TOKEN
 
-- DONE - No If_then_else deixar de ter a partir do then e ter um nao-terminal no qual temos uma parte com {} ou sem 
+- **DONE** - No If_then_else deixar de ter a partir do then e ter um nao-terminal no qual temos uma parte com {} ou sem 
 
-- Na String que n é necessario podemos remover a funcao auxiliar e apenas fazer um println para permitir \n e usear apenas no print
-    (ter muitas coisas complica o que temos de fazer em parte2) VER APENAS DEPPOIS DE TUDO, DEPOIS PODIAMOS FAZER
+- **NAO IMPLEMENTAR** - Na String que n é necessario podemos remover a funcao auxiliar e apenas fazer um println para permitir \n e usear apenas no print
+(ter muitas coisas complica o que temos de fazer em parte2) VER APENAS DEPPOIS DE TUDO, DEPOIS PODEREMOS FAZER
+
+-----------------------------
 
 ## 2º Parte
-- análise semantica (verificação de tipos, symbol table, ...)
+- **DONE** análise semantica (verificação de tipos, symbol table, ...)
     **apenas VERIFCAR se está tudo bem**
 
-- geração de código intermédio (funções estão defenidas em aula 10)
-- **DONE** UTILIZAR RE-UTILIZAÇÃO DE TEMPORARIOS aula12
-    **apenas verificar se está tudo bem e TESTAR**
+- **DONE** - geração de código intermédio (funções estão defenidas em aula 10)
 
 - geração de código mips (aulas 11 e 12)
 
 - **NOTA** as variaveis apenas serão declaradas globalmente, não existem abito local
-
-- *EM GERAL AINDA NAO TRATEI DO READLN e PRINT, vamos deixar para o fim pois tenho duvidas e ver melhor o PRINT
     
-- verificar se o RETURN funciona bem, ele deverá simplesmnete fazer jump para o fim do codigo
-
-- **DONE** TENHO DE IMPLEMENTAR A RE-UTILIZAÇÃO DE TEMPORARIOS
+- **DONE** - o RETURN deverá simplesmnete fazer jump para o fim do codigo
 
 - é necessario syscall quando acaba e para ler/print
 ver https://www.dcc.fc.up.pt/~ricroc/aulas/2324/ac/ o mips programing
