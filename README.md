@@ -34,7 +34,7 @@ ou então a aula 12 de compildaores
 
 
 ## README.pdf mudanças
-Referir updates da 1º parte, que removemos a utilização de Strings e que tratamos do unary minus e melhoramos a gramatica para Comando if...
+- Referir updates da 1º parte, que removemos a utilização de Strings e que tratamos do unary minus e melhoramos a gramatica para Comando if...
 
 - 1.2 ....para um código intermédio usando Código Intermédio de 3 endereços (TAC)
 E utilizar sempre TAC ao referir código intermédio de 3 endereços
