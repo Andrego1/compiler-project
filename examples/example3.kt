@@ -1,12 +1,16 @@
 fun main () {
     val a   = true
-    val b   = false
-    val and = a && b
-    val or  = b || a
-    val not = !b
     print(a)
+
+    val b   = false
     print(b)
+
+    val and = a && b
     print(and)
+
+    val or  = b || a
     print(or)
+
+    val not = !b
     print(not)
 }

@@ -18,6 +18,10 @@
 - **DONE** - geração de código intermédio (funções estão defenidas em aula 10)
 
 - geração de código mips (aulas 11 e 12)
+**nao gera corretamente para condições ver exemple3.kt ou example5.kt com mips gerado no MARS** ACHO QUE TEMOS DE POR ASSEGUIR UM JUMP PARA O FALSE.
+Temos de lidar com o PRINTI E PRINTR E READLNI E READLNR
+
+
 
 - **NOTA** as variaveis apenas serão declaradas globalmente, não existem abito local
     
