@@ -16,6 +16,7 @@ translateAssign (MOVER dest r) =
 translateAssign (MOVEB dest b) =
   "li $" ++ dest ++ ", " ++ show b
 
+
 -- Traduzir operações binárias
 translateBinOp :: Instr -> String
 translateBinOp (OP Plus dest src1 src2) =
@@ -43,6 +44,21 @@ translateJump (COND src1 rel src2 lblTrue lblFalse) =
     Ge -> "bge $" ++ src1 ++ ", $" ++ src2 ++ ", " ++ lblTrue
     Eq -> "beq $" ++ src1 ++ ", $" ++ src2 ++ ", " ++ lblTrue
     Ne -> "bne $" ++ src1 ++ ", $" ++ src2 ++ ", " ++ lblTrue
+
+translateIO :: Instr -> String
+translateIO (MOVE dest "output") =
+  unlines
+    [ "move $a0, $" ++ dest
+    , "li $v0, 1"   
+    , "syscall"
+    ]
+translateIO (MOVE dest "input") =
+  unlines
+    [ "li $v0, 5"   
+    , "syscall"
+    , "move $" ++ dest ++ ", $v0"
+    ]
+
 
 generateMIPS :: [Instr] -> [String]
 generateMIPS instrs =
