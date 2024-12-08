@@ -45,18 +45,19 @@ translateJump (COND src1 rel src2 lblTrue lblFalse) =
     Ne -> "bne $" ++ src1 ++ ", $" ++ src2 ++ ", " ++ lblTrue
 
 translateIO :: Instr -> String
-translateIO (MOVE dest "output") =
+translateIO (PRINT temp) =
   unlines
-    [ "move $a0, $" ++ dest
-    , "li $v0, 1"   
-    , "syscall"
+    [ "move $a0, $" ++ temp   
+    , "li $v0, 1"             
+    , "syscall"               
     ]
-translateIO (MOVE dest "input") =
+translateIO (READLN temp) =
   unlines
-    [ "li $v0, 5"   
-    , "syscall"
-    , "move $" ++ dest ++ ", $v0"
+    [ "li $v0, 5"            
+    , "syscall"             
+    , "move $" ++ temp ++ ", $v0"
     ]
+translateIO _ = error "Invalid IO instruction for translateIO"
 
 
 generateMIPS :: [Instr] -> [String]
@@ -64,19 +65,20 @@ generateMIPS instrs =
   [ ".text"
   , ".globl main"
   , "main:"
-  ] ++ map translateInstr instrs ++ finalizeMIPS
+  ] ++ concatMap translateInstr instrs ++ finalizeMIPS
   where
     translateInstr instr =
       case instr of
-        MOVE{} -> translateAssign instr
-        MOVEI{} -> translateAssign instr
-        MOVER{} -> translateAssign instr
-        MOVEB{} -> translateAssign instr
-        OP{} -> translateBinOp instr
-        JUMP{} -> translateJump instr
-        LABEL{} -> translateJump instr
-        COND{} -> translateJump instr
-
+        MOVE{}     -> [translateAssign instr]
+        MOVEI{}    -> [translateAssign instr]
+        MOVER{}    -> [translateAssign instr]
+        MOVEB{}    -> [translateAssign instr]
+        OP{}       -> [translateBinOp instr]
+        JUMP{}     -> [translateJump instr]
+        LABEL{}    -> [translateJump instr]
+        COND{}     -> [translateJump instr]
+        PRINT{}    -> lines (translateIO instr)
+        READLN{}   -> lines (translateIO instr)
     finalizeMIPS =
       [ "li $v0, 10" 
       , "syscall"    
