@@ -13,8 +13,7 @@ translateAssign (MOVEI dest imm) =
   "li $" ++ dest ++ ", " ++ show imm
 translateAssign (MOVER dest r) =
   "li $" ++ dest ++ ", " ++ show r
-translateAssign (MOVEB dest b) =
-  "li $" ++ dest ++ ", " ++ show b
+
 
 
 -- Traduzir operações binárias
