@@ -82,7 +82,7 @@ transExpr (AndNode e1 e2) env dest = genRelOp (AndNode e1 e2) dest env
 transExpr (OrNode e1 e2) env dest = genRelOp (OrNode e1 e2) dest env
 -- readln
 transExpr ReadlnNode env dest = return [READLNI dest]
-{--transExpr ReadlnNode env dest = case inferType (IdNode $ getElmAtIndex (strToInt index) keys) env of -- TODO: verificar !!
+{--transExpr ReadlnNode env dest = case inferType (IdNode $ getElmAtIndex (strToInt index) keys) env of 
   FloatType -> return [READLNR dest] 
   _ -> return [READLNI dest] -- tanto int como boolean seriam Integers (boolean seria 0 ou 1)
   where keys = Map.keys env
