@@ -25,7 +25,7 @@ tokens :-
     while                       { \_ -> WHILE }
     
     Int                         { \_ -> INT }
-    Float                       { \_ -> FLOAT }
+    --Float                       { \_ -> FLOAT }
     Boolean                     {\_ -> BOOLEAN }
     --String                      {\_ -> STRING }
 
@@ -50,7 +50,7 @@ tokens :-
     $digit+                 { \s -> NUM (read s) } -- "-"? para suportar numeros negativos
 
     -- Números reais
-    $digit+"."$digit+       { \s -> REAL (read s) } -- "-"? para suportar numeros negativos
+    --$digit+"."$digit+       { \s -> REAL (read s) } -- "-"? para suportar numeros negativos
 
     -- Strings -- 
     --\"([^\"]|\\.)*\"            { \s -> STR $ replaceEscapedChars (init (tail s)) }
@@ -108,7 +108,7 @@ tokens :-
 {
 data Token = ID String       -- e.g. xy123
             | NUM Int        -- e.g. 123
-            | REAL Float     -- e.g. 123.45
+            -- | REAL Float     -- e.g. 123.45
             -- | STR String  -- e.g "andre"
             
             | LPAREN         -- (
@@ -122,9 +122,9 @@ data Token = ID String       -- e.g. xy123
             | WHILE          -- while
 
             | INT            -- int
-            | FLOAT          -- float
+            -- | FLOAT          -- float
             | BOOLEAN
-            | STRING
+            -- | STRING
 
             | FUN            -- e.g. fun main
             | MAIN           -- para fun main

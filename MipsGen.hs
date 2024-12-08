@@ -11,8 +11,8 @@ translateAssign (MOVE dest src) =
   "move $" ++ dest ++ ", $" ++ src
 translateAssign (MOVEI dest imm) =
   "li $" ++ dest ++ ", " ++ show imm
-translateAssign (MOVER dest r) =
-  "li $" ++ dest ++ ", " ++ show r
+--translateAssign (MOVER dest r) =
+--  "li.s $" ++ dest ++ ", " ++ show r
 
 
 
@@ -37,12 +37,12 @@ translateJump (JUMP lbl) =
   "j " ++ lbl
 translateJump (COND src1 rel src2 lblTrue lblFalse) =
   case rel of
-    Lt -> "blt $" ++ src1 ++ ", $" ++ src2 ++ ", " ++ lblTrue
-    Le -> "ble $" ++ src1 ++ ", $" ++ src2 ++ ", " ++ lblTrue
-    Gt -> "bgt $" ++ src1 ++ ", $" ++ src2 ++ ", " ++ lblTrue
-    Ge -> "bge $" ++ src1 ++ ", $" ++ src2 ++ ", " ++ lblTrue
-    Eq -> "beq $" ++ src1 ++ ", $" ++ src2 ++ ", " ++ lblTrue
-    Ne -> "bne $" ++ src1 ++ ", $" ++ src2 ++ ", " ++ lblTrue
+    Lt -> "blt $" ++ src1 ++ ", $" ++ src2 ++ ", " ++ lblTrue ++ "\n" ++ "j " ++ lblFalse 
+    Le -> "ble $" ++ src1 ++ ", $" ++ src2 ++ ", " ++ lblTrue ++ "\n" ++ "j " ++ lblFalse  
+    Gt -> "bgt $" ++ src1 ++ ", $" ++ src2 ++ ", " ++ lblTrue ++ "\n" ++ "j " ++ lblFalse  
+    Ge -> "bge $" ++ src1 ++ ", $" ++ src2 ++ ", " ++ lblTrue ++ "\n" ++ "j " ++ lblFalse 
+    Eq -> "beq $" ++ src1 ++ ", $" ++ src2 ++ ", " ++ lblTrue ++ "\n" ++ "j " ++ lblFalse 
+    Ne -> "bne $" ++ src1 ++ ", $" ++ src2 ++ ", " ++ lblTrue ++ "\n" ++ "j " ++ lblFalse
 
 translateIO :: Instr -> String
 translateIO (PRINTI temp) =
@@ -51,12 +51,24 @@ translateIO (PRINTI temp) =
     , "li $v0, 1"             
     , "syscall"               
     ]
+--translateIO (PRINTR temp) =
+--  unlines
+--    [ "move.s $f12, $" ++ temp   
+--    , "li $v0, 2"             
+--    , "syscall"               
+--    ]
 translateIO (READLNI temp) =
   unlines
     [ "li $v0, 5"            
     , "syscall"             
     , "move $" ++ temp ++ ", $v0"
     ]
+--translateIO (READLNR temp) =
+--  unlines
+--    [ "li $v0, 6"            
+--    , "syscall"             
+--    , "move.s $" ++ temp ++ ", $f0"
+--    ]
 translateIO _ = error "Invalid IO instruction for translateIO"
 
 
@@ -70,13 +82,15 @@ generateMIPS instrs =
       case instr of
         MOVE{}     -> [translateAssign instr]
         MOVEI{}    -> [translateAssign instr]
-        MOVER{}    -> [translateAssign instr]
+        --MOVER{}    -> [translateAssign instr]
         OP{}       -> [translateBinOp instr]
         JUMP{}     -> [translateJump instr]
         LABEL{}    -> [translateJump instr]
         COND{}     -> [translateJump instr]
-        PRINTI{}    -> lines (translateIO instr)
-        READLNI{}   -> lines (translateIO instr)
+        PRINTI{}   -> lines (translateIO instr)
+        --PRINTR{}   -> lines (translateIO instr)
+        READLNI{}  -> lines (translateIO instr)
+        --READLNR{}  -> lines (translateIO instr)
     finalizeMIPS =
       [ "li $v0, 10" 
       , "syscall"    

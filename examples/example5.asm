@@ -12,6 +12,8 @@ li $t3, 2
 
 bgt $t2, $t3, L0
 
+j L1
+
 L0:
 
 li $t0, 1
@@ -27,6 +29,8 @@ L2:
 move $t2, $t0
 
 bne $t2, $0, L3
+
+j L4
 
 L3:
 

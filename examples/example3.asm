@@ -28,11 +28,15 @@ move $t5, $t0
 
 bne $t5, $0, L3
 
+j L1
+
 L3:
 
 move $t5, $t2
 
 bne $t5, $0, L0
+
+j L1
 
 L0:
 
@@ -58,11 +62,15 @@ move $t5, $t2
 
 bne $t5, $0, L4
 
+j L7
+
 L7:
 
 move $t5, $t0
 
 bne $t5, $0, L4
+
+j L5
 
 L4:
 
@@ -87,6 +95,8 @@ syscall
 move $t5, $t2
 
 bne $t5, $0, L9
+
+j L8
 
 L8:
 

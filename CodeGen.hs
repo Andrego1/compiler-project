@@ -13,19 +13,15 @@ import Data.List (elemIndex)
 data Instr
   = MOVE Temp Temp                -- x = y
   | MOVEI Temp Int                  -- x = int
-  | MOVER Temp Float
-  -- | MOVEI Temp Int
+  -- | MOVER Temp Float
   | OP BinOp Temp Temp Temp     -- x = y op z
   | LABEL Label                      -- Label:
   | JUMP Label                       -- goto Label
   | COND Temp Relop Temp Label Label -- if x op y goto Label1 else goto Label2
   | PRINTI Temp
-  | PRINTR Temp
+  -- | PRINTR Temp
   | READLNI Temp
-  | READLNR Temp
-  -- | PARAM String                      -- Param x
-  -- | CALL String Int                   -- Call func n_args
-  -- | RETURN (Maybe String)             -- Return x
+  -- | READLNR Temp
   deriving (Show, Eq)
 
 data BinOp = Plus | Minus | Mult | Div | Mod -- | Rel Relop
@@ -60,7 +56,7 @@ releaseTemp tempStart = do
 -- Geração de Código Intermediário para Expressões
 transExpr :: Exp -> TypeEnv -> Temp -> State Supply [Instr]
 transExpr (NumNode n) env dest = return [MOVEI dest n]
-transExpr (RealNode r) env dest = return [MOVER dest r]
+--transExpr (RealNode r) env dest = return [MOVER dest r]
 transExpr (IdNode x) env dest = return [MOVE dest ("t" ++ show (nelem x env))]
 transExpr (BoolNode b) env dest
   | b = return [MOVEI dest 1]
@@ -85,12 +81,13 @@ transExpr (AndNode e1 e2) env dest = genRelOp (AndNode e1 e2) dest env
 -- Operador ||
 transExpr (OrNode e1 e2) env dest = genRelOp (OrNode e1 e2) dest env
 -- readln
-transExpr ReadlnNode env dest = case inferType (IdNode $ getElmAtIndex (strToInt index) keys) env of -- TODO: verificar !!
+transExpr ReadlnNode env dest = return [READLNI dest]
+{--transExpr ReadlnNode env dest = case inferType (IdNode $ getElmAtIndex (strToInt index) keys) env of -- TODO: verificar !!
   FloatType -> return [READLNR dest] 
   _ -> return [READLNI dest] -- tanto int como boolean seriam Integers (boolean seria 0 ou 1)
   where keys = Map.keys env
         index = tail dest
-
+-}
 -- Operador Binário
 genBinOp :: Exp -> BinOp -> Exp -> TypeEnv -> Temp -> State Supply [Instr]
 genBinOp e1 op e2 env dest = do
@@ -152,15 +149,17 @@ genStm :: Exp -> TypeEnv -> State Supply [Instr]
 genStm (AssignNode x expr) env = do
   transExpr expr env ("t" ++ show (nelem x env))
 
-genStm ReturnNode env = return [JUMP "end"] -- TODO: verificar !!
+genStm ReturnNode env = return [JUMP "end"]
 
-genStm (PrintNode expr) env = do -- TODO: verificar !!
+genStm (PrintNode expr) env = do 
   t <- newTemp
   exprCode <- transExpr expr env t
   releaseTemp (length env)
-  case checkExpr env expr of
+  return $ exprCode ++ [PRINTI t] -- ou seja int e boolean (boolean seria 0 ou 1)
+  {-case checkExpr env expr of
     FloatType -> return $ exprCode ++ [PRINTR t]
     _ -> return $ exprCode ++ [PRINTI t] -- ou seja int e boolean (boolean seria 0 ou 1)
+-}
 
 genStm (AddAssignNode id expr) env = genStm (AssignNode id (AddNode (IdNode id) expr)) env
 genStm (SubAssignNode id expr) env = genStm (AssignNode id (SubNode (IdNode id) expr)) env

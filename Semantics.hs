@@ -15,7 +15,7 @@ checkArithmetic env e1 e2 op =
     let t1 = checkExpr env e1
         t2 = checkExpr env e2
     in if t1 == IntType && t2 == IntType then IntType
-       else if (t1 == FloatType || t2 == FloatType) && (t1 == IntType || t2 == IntType) then FloatType 
+       --else if (t1 == FloatType || t2 == FloatType) && (t1 == IntType || t2 == IntType) then FloatType 
        else error $ "Error: type error in '" ++ op ++ "': Expected matching types, but got (" ++ show t1 ++ ", " ++ show t2 ++ ")"
 
 -- função auxiliar usado para verificação de tipos de expressões boleanas exceto comparação
@@ -31,7 +31,7 @@ checkExpr :: TypeEnv -> Exp -> Type
 checkExpr env (IdNode x)   = case Map.lookup x env of
     Nothing -> error $ "Error: Undeclered variable " ++ x ++ " in envirment: " ++ show (Map.keys env)
     Just (t,b)  -> t
-checkExpr env (RealNode _) = FloatType
+--checkExpr env (RealNode _) = FloatType
 checkExpr env (BoolNode _) = BoolType
 checkExpr env (NumNode _)  = IntType
 checkExpr env (ReadlnNode) = IntType -- o readln é usado na atribuição logo 
@@ -65,8 +65,8 @@ checkExpr env (NotNode e1)   =
 
 validateExpr :: Type -> Exp -> TypeEnv -> Bool
 validateExpr ty exp env  = case checkExpr env exp of
-    FloatType -> FloatType == ty
-    IntType   -> IntType   == ty || FloatType == ty -- se declarar como float e expr dar um int deixa passar
+    --FloatType -> FloatType == ty
+    IntType   -> IntType   == ty -- || FloatType == ty -- se declarar como float e expr dar um int deixa passar
     BoolType  -> BoolType  == ty
 
 inferType :: Exp -> TypeEnv -> Type
@@ -102,8 +102,8 @@ checkStms env = foldr ((&&) . checkStm env) True
 checkAssigns :: TypeEnv -> Ident -> Exp -> String -> Bool
 checkAssigns env id expr assign = case Map.lookup id env of
     Just (typ, bool) -> case checkExpr env expr of
-                            IntType   -> ((IntType == typ || typ == FloatType) && bool) || error ("Error: type error in assign: '" ++ assign ++ "' with id: " ++ id)
-                            FloatType -> FloatType== typ && bool || error ("Error: type error in assign: '" ++ assign ++ "' with id: " ++ id)
+                            IntType   -> ((IntType == typ {-|| typ == FloatType-}) && bool) || error ("Error: type error in assign: '" ++ assign ++ "' with id: " ++ id)
+                            --FloatType -> FloatType== typ && bool || error ("Error: type error in assign: '" ++ assign ++ "' with id: " ++ id)
                             BoolType  -> BoolType == typ && bool || error ("Error: type error in assign: '" ++ assign ++ "' with id: " ++ id)
     Nothing -> error "Error: Undeclared variable"
 

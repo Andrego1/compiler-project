@@ -12,7 +12,7 @@ import Lexer
 -- Tokens para identificadores e valores
 id      {ID $$}
 num     {NUM $$}
-real    {REAL $$}
+--real    {REAL $$}
 --str     {STR $$}
 
 -- Tokens para caracteres de pontuação
@@ -29,7 +29,7 @@ while   {WHILE}
 
 -- Tokens para tipos
 int     {INT}
-float   {FLOAT}
+--float   {FLOAT}
 boolean {BOOLEAN}
 --string  {STRING}
 
@@ -136,7 +136,7 @@ While : while '(' Expr ')' Command           { WhileNode $3 [$5] }
 
 -- Declaração de tipos para variáveis
 Type : int                              { IntType }
-     | float                            { FloatType }
+     --| float                            { FloatType }
      | boolean                          { BoolType }
      --| string                           { StringType }
 
@@ -189,7 +189,7 @@ PostIncDecExp : id "++"                 { IncrNode (IdNode $1) }
 -- Definição de valores atômicos
 Atomic : id                             {IdNode $1}
        | num                            {NumNode $1}
-       | real                           {RealNode $1}
+       --| real                           {RealNode $1}
        | true                           {BoolNode True}
        | false                          {BoolNode False}
        | '(' Expr ')'                     { $2 }
@@ -201,7 +201,7 @@ Atomic : id                             {IdNode $1}
 -- Estrutura da AST (Árvore Sintática Abstrata) com tipos e nós de operações
 data Exp = ProgramNode [Exp]             -- Nó para encapsular a lista principal de comandos
          | NumNode Int
-         | RealNode Float 
+         -- | RealNode Float 
          | StringNode String
          | IdNode String
          | AddNode Exp Exp
@@ -238,7 +238,11 @@ data Exp = ProgramNode [Exp]             -- Nó para encapsular a lista principa
          | DivAssignNode String Exp
          | ModAssignNode String Exp
          deriving (Show, Eq)
-data Type = IntType | FloatType | BoolType | StringType deriving (Show, Eq) --TODO deicar se ter string por enquanto
+data Type = IntType 
+          -- | FloatType 
+          | BoolType 
+          -- | StringType 
+          deriving (Show, Eq) --TODO deicar se ter string por enquanto
 
 parseError :: [Token] -> a
 parseError toks = error $ "Erro de parsing: " ++ show toks
