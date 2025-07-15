@@ -1,5 +1,20 @@
-# Projeto de Compiladores
+# Projeto de Compiladores CC3001
 --------------------------
+Um compilador para um subconjunto pequeno da linguagem Kotlin.
+Usamos o Alex para análise léxica, ficheiro `Lexer.x` e Happy para análise sintática, ficheiro `Parser.y`.
+O ficheiro `README_parte1.pdf` tem uma melhor descrição da 1ºparte do projeto que foi a utilização dos geradores acima.
+Na 2ºparte criamos o `Semantics.hs` para análise semântica, o `CodeGen.hs` para a geração de código intermédio, o `MipsGen.hs` cria o código MIPS apartir das instruções intermédias. 
+O `Main.hs` é o ficheiro que permite correr tudo e visulizar cada etapa.
+
+Podemos correr da seguinte forma: 
+- `./Main < examples/example1.kt`
+Imprime no terminal todas as fazes e codigo MIPS deverá ser igual a example1.asm
+( `README_parte2.pdf` tem mais coisas mas tem como correr mal..... )
+
+--------------------------
+
+
+# Isto são notas durante o desenvolvimento
 
 ## Correcoes a fazer 1º Parte:
 - **DONE** - Ter o unary_minus para permitir -(1+2)+2 e deixar de permitir numeros negativos na expressão regular, unary_minus TOKEN
